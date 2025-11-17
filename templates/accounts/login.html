@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Login | CodeQuest{% endblock %}
+
+{% block header %}
+<h1>Login to CodeQuest</h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    <div class="card">
+        <label for="username">Username</label>
+        <input type="text" name="username" id="username" required>
+    </div>
+    <div class="card">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" required>
+    </div>
+    <button type="submit" class="cta">Login</button>
+</form>
+<p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+{% endblock %}

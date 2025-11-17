@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-zinc-900 via-black to-zinc-900 text-zinc-100 px-6 py-10">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- Course Header -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold tracking-tight text-emerald-400 drop-shadow-lg">
+                Learning Center
+            </h1>
+            <p class="text-zinc-400 mt-2">
+                Adaptive lessons, real-time feedback, challenge progression & sandbox access.
+            </p>
+        </div>
+
+        <!-- Retro Container -->
+        <div class="bg-zinc-900/70 border border-zinc-700 rounded-2xl shadow-xl p-8 backdrop-blur">
+            
+            <!-- Placeholder until real content loads -->
+            <div class="mb-8">
+                <h2 class="text-2xl font-semibold text-emerald-300">Module Overview</h2>
+                <p class="text-zinc-400 mt-2 text-sm">
+                    Your personalized modules will appear here based on your challenge performance.
+                </p>
+            </div>
+
+            <!-- Sandbox Preview -->
+            <div class="bg-black border border-emerald-500/40 rounded-xl p-6 font-mono text-sm shadow-inner">
+                <p class="text-emerald-300 mb-2">▶ SANDBOX TERMINAL</p>
+                <div class="text-emerald-400">
+                    $ echo "Welcome to your practice environment..."
+                </div>
+                <div class="text-emerald-500 opacity-50">
+                    █
+                </div>
+            </div>
+
+            <!-- Progress Block -->
+            <div class="mt-10">
+                <h3 class="text-xl font-semibold text-sky-300">Your Progress</h3>
+                <ul class="mt-4 space-y-2 text-zinc-400 text-sm">
+                    <li>● Streak: <span class="text-emerald-400">0 days</span></li>
+                    <li>● XP Earned: <span class="text-emerald-400">0</span></li>
+                    <li>● Rank: <span class="text-emerald-400">Unranked</span></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- Footer Retro Hint -->
+        <p class="text-xs text-zinc-600 mt-8 text-center tracking-wide italic">
+            MORE MODULES UNLOCK AS YOU MASTER CHALLENGES ▬▬▶
+        </p>
+
+    </div>
+
+</div>
+{% endblock %}
