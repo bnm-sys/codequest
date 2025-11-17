@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Home | CodeQuest{% endblock %}
+
+{% block header %}
+<h1>Welcome to CodeQuest</h1>
+<p>Learn Linux and Git in a fun, gamified way.</p>
+{% endblock %}
+
+{% block content %}
+<h2>Available Courses</h2>
+<div>
+    {% for course in courses %}
+    <div class="card">
+        <h3>{{ course.title }}</h3>
+        <p>{{ course.description|truncatewords:25 }}</p>
+        <a href="{% url 'course_detail' slug=course.slug %}"><button class="cta">View Course</button></a>
+    </div>
+    {% empty %}
+    <p>No courses available at the moment.</p>
+    {% endfor %}
+</div>
+{% endblock %}

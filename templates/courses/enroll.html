@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Enroll | CodeQuest{% endblock %}
+
+{% block header %}
+<h1>Enroll in {{ course.title }}</h1>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="cta">Enroll Now</button>
+</form>
+{% endblock %}

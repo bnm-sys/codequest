@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ course.title }} | CodeQuest{% endblock %}
+
+{% block header %}
+<h1>{{ course.title }}</h1>
+<p>{{ course.description }}</p>
+<a href="{% url 'enroll' %}"><button class="cta">Enroll</button></a>
+{% endblock %}
+
+{% block content %}
+<h2>Modules</h2>
+{% for module in modules %}
+<div class="card">
+    <h3>{{ module.title }}</h3>
+    <p>Points: {{ module.points }}</p>
+    <p>{{ module.content|truncatewords:30 }}</p>
+</div>
+{% empty %}
+<p>No modules added yet.</p>
+{% endfor %}
+{% endblock %}

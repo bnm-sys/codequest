@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | CodeQuest{% endblock %}
+
+{% block header %}
+<h1>{{ user.username }}'s Dashboard</h1>
+<p>Track your progress, XP, and streaks.</p>
+{% endblock %}
+
+{% block content %}
+<h2>Your Courses</h2>
+{% for enrollment in enrollments %}
+<div class="card">
+    <h3>{{ enrollment.course.title }}</h3>
+    <p>XP: {{ enrollment.xp }} | Progress: {{ enrollment.progress }}% | Streak: {{ enrollment.streak }}</p>
+    <p>Total Minutes Spent: {{ enrollment.total_minutes_spent }}</p>
+    <a href="{% url 'course_detail' slug=enrollment.course.slug %}"><button class="cta">Continue Learning</button></a>
+</div>
+{% empty %}
+<p>You are not enrolled in any course yet. Go <a href="{% url 'home' %}">home</a> to enroll.</p>
+{% endfor %}
+{% endblock %}
