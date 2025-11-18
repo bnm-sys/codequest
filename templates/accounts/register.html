@@ -3,14 +3,39 @@
 {% block title %}Register | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>Create a new account</h1>
+<h1 class="text-4xl font-bold text-terminal mb-4">Create a new account</h1>
 {% endblock %}
 
 {% block content %}
-<form method="POST">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="cta">Register</button>
-</form>
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+<div class="max-w-md mx-auto bg-zinc-800/70 border border-terminal/30 rounded-xl p-8">
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        {% for field in form %}
+        <div>
+            <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-terminal mb-2">
+                {{ field.label }}
+            </label>
+            {{ field }}
+            {% if field.errors %}
+            <div class="mt-1 text-red-400 text-sm">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+            {% if field.help_text %}
+            <p class="mt-1 text-xs text-zinc-400">{{ field.help_text }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+        
+        <button type="submit" class="w-full bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition">
+            Register
+        </button>
+    </form>
+    
+    <p class="mt-6 text-center text-zinc-400">
+        Already have an account? 
+        <a href="{% url 'login' %}" class="text-terminal hover:text-terminal/80">Login</a>
+    </p>
+</div>
 {% endblock %}

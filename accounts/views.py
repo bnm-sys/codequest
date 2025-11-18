@@ -41,14 +41,33 @@ class CustomLogoutView(LogoutView):
     next_page = "login"
 
 class DashboardView(LoginRequiredMixin, View):
-    template_name = "accounts/dashboard.html"
+    template_name = "courses/dashboard.html"
 
     def get(self, request):
+        from courses.views import calculate_progress
+        
         # Courses block - list all courses for selection
         courses = Course.objects.all()
         # user's enrollments
         enrollments = request.user.enrollments.select_related('course').all()
-        return render(request, self.template_name, {"courses": courses, "enrollments": enrollments})
+        
+        # Compute progress dynamically
+        for enr in enrollments:
+            enr.progress = calculate_progress(enr)
+        
+        # Leaderboard snippets for each course
+        course_ids = [e.course_id for e in enrollments]
+        leaderboards = {}
+        if course_ids:
+            for cid in course_ids:
+                top = Enrollment.objects.filter(course_id=cid).order_by("-xp")[:5]
+                leaderboards[cid] = top
+        
+        return render(request, self.template_name, {
+            "courses": courses, 
+            "enrollments": enrollments,
+            "leaderboards": leaderboards,
+        })
 
 class EnrollView(LoginRequiredMixin, View):
     def post(self, request, slug):
@@ -61,7 +80,7 @@ class EnrollView(LoginRequiredMixin, View):
             messages.success(request, f"Enrolled in {course.title}")
         else:
             messages.info(request, f"Already enrolled in {course.title}")
-        return redirect("learning_center", slug=course.slug)
+        return redirect("courses:learning_center", slug=course.slug)
 
 class LearningCenterView(LoginRequiredMixin, View):
     template_name = "courses/learning_center.html"

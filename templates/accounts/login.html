@@ -3,21 +3,44 @@
 {% block title %}Login | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>Login to CodeQuest</h1>
+<h1 class="text-4xl font-bold text-terminal mb-4">Login to CodeQuest</h1>
 {% endblock %}
 
 {% block content %}
-<form method="POST">
-    {% csrf_token %}
-    <div class="card">
-        <label for="username">Username</label>
-        <input type="text" name="username" id="username" required>
-    </div>
-    <div class="card">
-        <label for="password">Password</label>
-        <input type="password" name="password" id="password" required>
-    </div>
-    <button type="submit" class="cta">Login</button>
-</form>
-<p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+<div class="max-w-md mx-auto bg-zinc-800/70 border border-terminal/30 rounded-xl p-8">
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        <div>
+            <label for="username" class="block text-sm font-medium text-terminal mb-2">
+                Username
+            </label>
+            <input type="text" name="username" id="username" required
+                   class="w-full bg-zinc-900 border border-terminal/30 rounded-lg px-4 py-2 text-terminal focus:outline-none focus:border-terminal">
+        </div>
+        
+        <div>
+            <label for="password" class="block text-sm font-medium text-terminal mb-2">
+                Password
+            </label>
+            <input type="password" name="password" id="password" required
+                   class="w-full bg-zinc-900 border border-terminal/30 rounded-lg px-4 py-2 text-terminal focus:outline-none focus:border-terminal">
+        </div>
+        
+        {% if form.errors %}
+        <div class="bg-red-900/50 border border-red-500 rounded-lg p-4">
+            <p class="text-red-400 text-sm">{{ form.non_field_errors }}</p>
+        </div>
+        {% endif %}
+        
+        <button type="submit" class="w-full bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition">
+            Login
+        </button>
+    </form>
+    
+    <p class="mt-6 text-center text-zinc-400">
+        Don't have an account? 
+        <a href="{% url 'register' %}" class="text-terminal hover:text-terminal/80">Register here</a>
+    </p>
+</div>
 {% endblock %}

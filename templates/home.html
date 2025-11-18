@@ -3,21 +3,35 @@
 {% block title %}Home | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>Welcome to CodeQuest</h1>
-<p>Learn Linux and Git in a fun, gamified way.</p>
+<h1 class="text-4xl font-bold text-terminal mb-4">Welcome to CodeQuest</h1>
+<p class="text-zinc-300 text-lg">Learn Linux and Git in a fun, gamified way with adaptive learning.</p>
 {% endblock %}
 
 {% block content %}
-<h2>Available Courses</h2>
-<div>
-    {% for course in courses %}
-    <div class="card">
-        <h3>{{ course.title }}</h3>
-        <p>{{ course.description|truncatewords:25 }}</p>
-        <a href="{% url 'course_detail' slug=course.slug %}"><button class="cta">View Course</button></a>
+<div class="mt-8">
+    <h2 class="text-2xl font-semibold text-terminal mb-6">Available Courses</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for course in courses %}
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6 hover:border-terminal transition">
+            <h3 class="text-xl font-bold text-terminal mb-3">{{ course.title }}</h3>
+            <p class="text-zinc-300 mb-4 line-clamp-3">{{ course.description|truncatewords:25 }}</p>
+            
+            <div class="flex items-center justify-between mt-4">
+                <div class="text-sm text-zinc-400">
+                    <i class="fas fa-users mr-1"></i>{{ course.total_enrolled }} enrolled
+                </div>
+                <a href="{% url 'courses:course_detail' slug=course.slug %}" 
+                   class="bg-terminal text-terminal-dark px-4 py-2 rounded-lg font-bold hover:bg-terminal/80 transition">
+                    View Course
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full bg-zinc-800/70 border border-terminal/30 rounded-xl p-8 text-center">
+            <p class="text-zinc-400">No courses available at the moment.</p>
+        </div>
+        {% endfor %}
     </div>
-    {% empty %}
-    <p>No courses available at the moment.</p>
-    {% endfor %}
 </div>
 {% endblock %}

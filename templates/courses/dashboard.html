@@ -3,20 +3,111 @@
 {% block title %}Dashboard | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>{{ user.username }}'s Dashboard</h1>
-<p>Track your progress, XP, and streaks.</p>
+<h1 class="text-4xl font-bold text-terminal mb-4">{{ user.username }}'s Dashboard</h1>
+<p class="text-zinc-300">Track your progress, XP, streaks, and achievements.</p>
 {% endblock %}
 
 {% block content %}
-<h2>Your Courses</h2>
-{% for enrollment in enrollments %}
-<div class="card">
-    <h3>{{ enrollment.course.title }}</h3>
-    <p>XP: {{ enrollment.xp }} | Progress: {{ enrollment.progress }}% | Streak: {{ enrollment.streak }}</p>
-    <p>Total Minutes Spent: {{ enrollment.total_minutes_spent }}</p>
-    <a href="{% url 'course_detail' slug=enrollment.course.slug %}"><button class="cta">Continue Learning</button></a>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2">
+        <h2 class="text-2xl font-semibold text-terminal mb-4">Your Courses</h2>
+        
+        {% for enrollment in enrollments %}
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6 mb-4">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h3 class="text-xl font-bold text-terminal mb-2">{{ enrollment.course.title }}</h3>
+                    <p class="text-zinc-400 text-sm">{{ enrollment.course.description|truncatewords:20 }}</p>
+                </div>
+                <a href="{% url 'courses:learning_center' slug=enrollment.course.slug %}" 
+                   class="bg-terminal text-terminal-dark px-4 py-2 rounded-lg font-bold hover:bg-terminal/80 transition">
+                    Continue Learning
+                </a>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="mb-4">
+                <div class="flex justify-between text-sm text-zinc-400 mb-2">
+                    <span>Progress</span>
+                    <span>{{ enrollment.progress }}%</span>
+                </div>
+                <div class="w-full bg-zinc-700 rounded-full h-3">
+                    <div class="bg-terminal h-3 rounded-full transition-all" style="width: {{ enrollment.progress }}%"></div>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="grid grid-cols-3 gap-4 mt-4">
+                <div class="bg-zinc-900/50 rounded-lg p-3">
+                    <div class="text-xs text-zinc-400 mb-1">XP</div>
+                    <div class="text-xl font-bold text-terminal">{{ enrollment.xp }}</div>
+                </div>
+                <div class="bg-zinc-900/50 rounded-lg p-3">
+                    <div class="text-xs text-zinc-400 mb-1">Streak</div>
+                    <div class="text-xl font-bold text-terminal">{{ enrollment.streak }} 🔥</div>
+                </div>
+                <div class="bg-zinc-900/50 rounded-lg p-3">
+                    <div class="text-xs text-zinc-400 mb-1">Time</div>
+                    <div class="text-xl font-bold text-terminal">{{ enrollment.total_minutes_spent }}m</div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-8 text-center">
+            <p class="text-zinc-400 mb-4">You are not enrolled in any course yet.</p>
+            <a href="{% url 'home' %}" class="bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition inline-block">
+                Browse Courses
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Quick Stats -->
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-terminal mb-4">Quick Stats</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Total XP</span>
+                    <span class="text-terminal font-bold">{{ user.profile.xp }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Challenges Completed</span>
+                    <span class="text-terminal font-bold">{{ user.profile.completed_challenges }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-zinc-400">Current Streak</span>
+                    <span class="text-terminal font-bold">{{ user.profile.current_streak }} 🔥</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Leaderboard Preview -->
+        {% if leaderboards %}
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
+            <h3 class="text-xl font-semibold text-terminal mb-4">Top Performers</h3>
+            <div class="space-y-2">
+                {% for course_id, top_users in leaderboards.items %}
+                    {% if top_users %}
+                    <div class="text-sm">
+                        <div class="text-zinc-400 mb-2">Course Leaders</div>
+                        {% for enr in top_users|slice:":3" %}
+                        <div class="flex justify-between py-1">
+                            <span class="text-zinc-300">{{ enr.user.username }}</span>
+                            <span class="text-terminal">{{ enr.xp }} XP</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <a href="{% url 'leaderboard' %}" class="block mt-4 text-center text-terminal hover:text-terminal/80 transition text-sm">
+                View Full Leaderboard →
+            </a>
+        </div>
+        {% endif %}
+    </div>
 </div>
-{% empty %}
-<p>You are not enrolled in any course yet. Go <a href="{% url 'home' %}">home</a> to enroll.</p>
-{% endfor %}
 {% endblock %}

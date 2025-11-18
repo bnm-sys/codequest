@@ -14,4 +14,6 @@ urlpatterns = [
 
     path("accounts/", include("accounts.urls")),  # registration, profile
     path("courses/", include("courses.urls")),
+    path("sandbox/", include("sandbox.urls")),  # sandbox API
+    path("gamification/", include("gamification.urls")),  # achievements, leaderboard
 ]

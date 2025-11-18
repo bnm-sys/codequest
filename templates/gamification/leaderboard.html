@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard | CodeQuest{% endblock %}
+
+{% block header %}
+<h1 class="text-4xl font-bold text-terminal mb-4">Leaderboard</h1>
+<p class="text-zinc-300">Compete with other learners and climb the ranks!</p>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Leaderboard -->
+    <div class="lg:col-span-2">
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
+            <h2 class="text-2xl font-semibold text-terminal mb-6">Top Players (Total XP)</h2>
+            
+            <!-- User Rank -->
+            <div class="bg-terminal/20 border border-terminal rounded-lg p-4 mb-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <div class="text-sm text-zinc-400">Your Rank</div>
+                        <div class="text-3xl font-bold text-terminal">#{{ user_rank }}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-sm text-zinc-400">Your XP</div>
+                        <div class="text-2xl font-bold text-terminal">{{ user_xp }}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Leaderboard Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="border-b border-terminal/30">
+                            <th class="text-left py-3 px-4 text-terminal">Rank</th>
+                            <th class="text-left py-3 px-4 text-terminal">User</th>
+                            <th class="text-right py-3 px-4 text-terminal">Total XP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_data in leaderboard %}
+                        <tr class="border-b border-zinc-700/50 {% if user_data.id == user.id %}bg-terminal/10{% endif %}">
+                            <td class="py-3 px-4">
+                                {% if forloop.counter == 1 %}
+                                    <span class="text-yellow-400">🥇</span>
+                                {% elif forloop.counter == 2 %}
+                                    <span class="text-gray-300">🥈</span>
+                                {% elif forloop.counter == 3 %}
+                                    <span class="text-amber-600">🥉</span>
+                                {% else %}
+                                    <span class="text-zinc-400">#{{ forloop.counter }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-zinc-300">
+                                {% if user_data.id == user.id %}
+                                    <strong class="text-terminal">{{ user_data.username }} (You)</strong>
+                                {% else %}
+                                    {{ user_data.username }}
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-right text-terminal font-bold">
+                                {{ user_data.total_xp|default:0 }}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="py-8 text-center text-zinc-400">No rankings yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Skill Leaderboards -->
+    <div>
+        <h2 class="text-2xl font-semibold text-terminal mb-4">Skill Masters</h2>
+        <div class="space-y-4">
+            {% for skill_tag, masters in skill_leaderboards.items %}
+            <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-4">
+                <h3 class="text-lg font-semibold text-terminal mb-3">{{ skill_tag }}</h3>
+                <div class="space-y-2">
+                    {% for mastery in masters %}
+                    <div class="flex justify-between text-sm">
+                        <span class="text-zinc-300">{{ mastery.user.username }}</span>
+                        <span class="text-terminal">{{ mastery.mastery_percentage }}%</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-4 text-center text-zinc-400">
+                No skill rankings yet.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+

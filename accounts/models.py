@@ -20,6 +20,15 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+    def is_student(self):
+        return self.role == "student"
+    
+    def is_instructor(self):
+        return self.role == "instructor"
+    
+    def is_admin_user(self):
+        return self.role == "admin" or self.is_superuser
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)

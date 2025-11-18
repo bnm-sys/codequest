@@ -111,11 +111,31 @@ def learning_center(request, slug):
         messages.success(request, "You have completed the course!")
         return redirect("courses:dashboard")
 
-    # choose next challenge in active_module
+    # Use IRT to recommend next challenge
+    from gamification.irt_engine import IRTEngine
+    
     solved_ids = UserChallengeAttempt.objects.filter(
         user=request.user, is_correct=True, challenge__module=active_module
     ).values_list("challenge_id", flat=True)
-    next_challenge = active_module.challenges.exclude(id__in=solved_ids).first()
+    available_challenges = active_module.challenges.exclude(id__in=solved_ids)
+    
+    # Get skill tag from module if available
+    skill_tag = None
+    if active_module.skill_tags and isinstance(active_module.skill_tags, dict):
+        skill_tags_list = list(active_module.skill_tags.keys())
+        if skill_tags_list:
+            skill_tag = skill_tags_list[0]  # Use first skill tag
+    
+    # Use IRT recommendation if available
+    next_challenge = IRTEngine.recommend_next_challenge(
+        user=request.user,
+        available_challenges=available_challenges,
+        skill_tag=skill_tag
+    )
+    
+    # Fallback to first available if IRT didn't recommend
+    if not next_challenge:
+        next_challenge = available_challenges.first()
 
     return render(request, "courses/learning_center.html", {
         "course": course,
@@ -128,6 +148,10 @@ def learning_center(request, slug):
 @login_required
 def attempt_challenge(request, challenge_id):
     """Accept POST with 'answer' and optional 'time_seconds' then evaluate and update enrollment XP/streak."""
+    from sandbox.evaluator import OutputEvaluator
+    from gamification.irt_engine import IRTEngine
+    from accounts.models import Profile
+    
     challenge = get_object_or_404(Challenge, id=challenge_id)
     course = challenge.module.course
     enrollment = get_object_or_404(Enrollment, user=request.user, course=course)
@@ -142,7 +166,9 @@ def attempt_challenge(request, challenge_id):
     except (ValueError, TypeError):
         time_seconds = 0
 
-    is_correct = (user_answer == challenge.expected_output.strip())
+    # Use evaluator to check correctness
+    evaluator = OutputEvaluator()
+    is_correct, feedback = evaluator.evaluate_challenge(user_answer, challenge)
 
     prev_attempts = UserChallengeAttempt.objects.filter(user=request.user, challenge=challenge).count()
     attempt = UserChallengeAttempt.objects.create(
@@ -153,17 +179,38 @@ def attempt_challenge(request, challenge_id):
         time_seconds=time_seconds,
     )
 
-    # XP and streak rules (simple baseline)
+    # Update IRT skill mastery if skill tags exist
+    if challenge.module.skill_tags and isinstance(challenge.module.skill_tags, dict):
+        difficulty_map = {'easy': -1.0, 'medium': 0.0, 'hard': 1.0, 'expert': 2.0}
+        challenge_difficulty = difficulty_map.get(challenge.difficulty.lower(), 0.0)
+        
+        for skill_tag in challenge.module.skill_tags.keys():
+            IRTEngine.update_skill_mastery(
+                user=request.user,
+                skill_tag=skill_tag,
+                is_correct=is_correct,
+                challenge_difficulty=challenge_difficulty,
+                challenge_discrimination=1.0
+            )
+
+    # XP and streak rules
     if is_correct:
         earned_xp = challenge.module.points
         enrollment.xp = (enrollment.xp or 0) + earned_xp
         enrollment.streak = (enrollment.streak or 0) + 1
-        messages.success(request, f"Correct — +{earned_xp} XP. Streak +1.")
-        # optionally update mastery per skill tag (placeholder)
-        # for tag, weight in challenge.module.skill_tags.items(): ...
+        
+        # Update profile
+        profile = request.user.profile
+        profile.xp = (profile.xp or 0) + earned_xp
+        profile.current_streak = max(profile.current_streak, enrollment.streak)
+        if not UserChallengeAttempt.objects.filter(user=request.user, challenge=challenge, is_correct=True).exclude(id=attempt.id).exists():
+            profile.completed_challenges += 1
+        profile.save()
+        
+        messages.success(request, f"Correct! {feedback} +{earned_xp} XP. Streak +1.")
     else:
         enrollment.streak = 0
-        messages.error(request, "Incorrect — try again!")
+        messages.error(request, f"Incorrect — {feedback}")
 
     enrollment.progress = calculate_progress(enrollment)
     enrollment.save()

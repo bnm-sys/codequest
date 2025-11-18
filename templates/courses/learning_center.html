@@ -1,60 +1,361 @@
 {% extends "base.html" %}
 
+{% block title %}Learning Center - {{ course.title }} | CodeQuest{% endblock %}
+
+{% block extra_head %}
+<!-- Xterm.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.css" />
+{% endblock %}
+
 {% block content %}
-<div class="min-h-screen bg-gradient-to-br from-zinc-900 via-black to-zinc-900 text-zinc-100 px-6 py-10">
-
-    <div class="max-w-4xl mx-auto">
+<div class="min-h-screen bg-gradient-to-br from-zinc-900 via-black to-zinc-900">
+    
+    <!-- Course Header -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-terminal mb-2">{{ course.title }}</h1>
+        <p class="text-zinc-400">{{ course.description }}</p>
         
-        <!-- Course Header -->
-        <div class="mb-8 text-center">
-            <h1 class="text-4xl font-bold tracking-tight text-emerald-400 drop-shadow-lg">
-                Learning Center
-            </h1>
-            <p class="text-zinc-400 mt-2">
-                Adaptive lessons, real-time feedback, challenge progression & sandbox access.
-            </p>
+        <!-- Progress Stats -->
+        <div class="mt-4 flex gap-6">
+            <div class="bg-zinc-800/50 border border-terminal/30 rounded-lg p-4">
+                <div class="text-sm text-zinc-400">Progress</div>
+                <div class="text-2xl font-bold text-terminal">{{ enrollment.progress }}%</div>
+            </div>
+            <div class="bg-zinc-800/50 border border-terminal/30 rounded-lg p-4">
+                <div class="text-sm text-zinc-400">XP Earned</div>
+                <div class="text-2xl font-bold text-terminal">{{ enrollment.xp }}</div>
+            </div>
+            <div class="bg-zinc-800/50 border border-terminal/30 rounded-lg p-4">
+                <div class="text-sm text-zinc-400">Streak</div>
+                <div class="text-2xl font-bold text-terminal">{{ enrollment.streak }} 🔥</div>
+            </div>
         </div>
-
-        <!-- Retro Container -->
-        <div class="bg-zinc-900/70 border border-zinc-700 rounded-2xl shadow-xl p-8 backdrop-blur">
-            
-            <!-- Placeholder until real content loads -->
-            <div class="mb-8">
-                <h2 class="text-2xl font-semibold text-emerald-300">Module Overview</h2>
-                <p class="text-zinc-400 mt-2 text-sm">
-                    Your personalized modules will appear here based on your challenge performance.
-                </p>
-            </div>
-
-            <!-- Sandbox Preview -->
-            <div class="bg-black border border-emerald-500/40 rounded-xl p-6 font-mono text-sm shadow-inner">
-                <p class="text-emerald-300 mb-2">▶ SANDBOX TERMINAL</p>
-                <div class="text-emerald-400">
-                    $ echo "Welcome to your practice environment..."
-                </div>
-                <div class="text-emerald-500 opacity-50">
-                    █
-                </div>
-            </div>
-
-            <!-- Progress Block -->
-            <div class="mt-10">
-                <h3 class="text-xl font-semibold text-sky-300">Your Progress</h3>
-                <ul class="mt-4 space-y-2 text-zinc-400 text-sm">
-                    <li>● Streak: <span class="text-emerald-400">0 days</span></li>
-                    <li>● XP Earned: <span class="text-emerald-400">0</span></li>
-                    <li>● Rank: <span class="text-emerald-400">Unranked</span></li>
-                </ul>
-            </div>
-
-        </div>
-
-        <!-- Footer Retro Hint -->
-        <p class="text-xs text-zinc-600 mt-8 text-center tracking-wide italic">
-            MORE MODULES UNLOCK AS YOU MASTER CHALLENGES ▬▬▶
-        </p>
-
     </div>
 
+    {% if challenge %}
+    <!-- Challenge Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Challenge Details -->
+        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
+            <h2 class="text-2xl font-semibold text-terminal mb-4">
+                {{ active_module.title }}
+            </h2>
+            <div class="mb-4">
+                <span class="inline-block bg-terminal/20 text-terminal px-3 py-1 rounded text-sm">
+                    {{ challenge.difficulty|title }}
+                </span>
+                <span class="inline-block bg-blue-500/20 text-blue-400 px-3 py-1 rounded text-sm ml-2">
+                    {{ challenge.module.points }} XP
+                </span>
+            </div>
+            
+            <div class="prose prose-invert max-w-none">
+                <h3 class="text-xl text-terminal mb-3">{{ challenge.title|default:"Challenge" }}</h3>
+                <p class="text-zinc-300 whitespace-pre-wrap mb-6">{{ challenge.prompt }}</p>
+            </div>
+            
+            <div class="mt-6">
+                <button id="start-sandbox-btn" class="bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition mb-3">
+                    <i class="fas fa-terminal mr-2"></i>Start Terminal
+                </button>
+                <button id="submit-answer-btn" class="bg-green-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-green-700 transition hidden">
+                    <i class="fas fa-check mr-2"></i>Submit Answer
+                </button>
+            </div>
+        </div>
+        
+        <!-- Terminal Section -->
+        <div class="bg-zinc-900/70 border border-terminal/30 rounded-xl p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-terminal">
+                    <i class="fas fa-terminal mr-2"></i>Terminal Sandbox
+                </h3>
+                <div id="terminal-status" class="text-sm text-zinc-400">
+                    Not connected
+                </div>
+            </div>
+            
+            <!-- Terminal Container -->
+            <div id="terminal-container" class="bg-black border border-terminal/40 rounded-lg p-4 h-96 font-mono text-sm">
+                <div class="text-zinc-500 text-center py-20">
+                    Click "Start Terminal" to begin
+                </div>
+            </div>
+            
+            <div class="mt-4 text-xs text-zinc-500">
+                <i class="fas fa-info-circle mr-1"></i>
+                Your terminal session will timeout after 5 minutes of inactivity.
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Feedback -->
+    <div id="result-feedback" class="hidden mb-6 p-6 rounded-lg border"></div>
+    
+    {% else %}
+    <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-8 text-center">
+        <h2 class="text-2xl font-semibold text-terminal mb-4">All Challenges Complete! 🎉</h2>
+        <p class="text-zinc-300 mb-6">You've completed all challenges in this module.</p>
+        <a href="{% url 'courses:dashboard' %}" class="bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition inline-block">
+            Back to Dashboard
+        </a>
+    </div>
+    {% endif %}
+    
+    <!-- Module Progress -->
+    <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6 mt-6">
+        <h3 class="text-xl font-semibold text-terminal mb-4">Module Progress</h3>
+        <div class="space-y-3">
+            {% for module in course.modules.all %}
+            <div class="flex items-center justify-between p-3 bg-zinc-900/50 rounded">
+                <div>
+                    <span class="text-terminal font-medium">{{ module.title }}</span>
+                    <span class="text-zinc-400 text-sm ml-2">{{ module.challenges.count }} challenges</span>
+                </div>
+                <div class="text-terminal">
+                    {% widthratio module.challenges.count course.modules.count 100 as completion %}
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Xterm.js -->
+<script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xterm-addon-fit@0.8.0/lib/xterm-addon-fit.js"></script>
+
+<script>
+const challengeId = {{ challenge.id|default:"null" }};
+const sandboxApiUrl = '/sandbox/api/sessions/';
+let terminal = null;
+let fitAddon = null;
+let sessionId = null;
+let isSandboxActive = false;
+
+// Initialize terminal
+function initTerminal() {
+    terminal = new Terminal({
+        cursorBlink: true,
+        fontSize: 14,
+        fontFamily: 'Share Tech Mono, monospace',
+        theme: {
+            background: '#000000',
+            foreground: '#00ffcc',
+            cursor: '#00ffcc',
+            selection: 'rgba(0, 255, 204, 0.3)'
+        }
+    });
+    
+    fitAddon = new FitAddon.FitAddon();
+    terminal.loadAddon(fitAddon);
+    
+    const container = document.getElementById('terminal-container');
+    container.innerHTML = '';  // Clear placeholder
+    terminal.open(container);
+    fitAddon.fit();
+    
+    // Handle terminal input
+    terminal.onData(data => {
+        if (!isSandboxActive || !sessionId) {
+            terminal.write('\r\nTerminal not connected. Please start a new session.\r\n');
+            return;
+        }
+        
+        // Send command to sandbox
+        sendCommand(data);
+    });
+}
+
+// Start sandbox session
+async function startSandbox() {
+    const btn = document.getElementById('start-sandbox-btn');
+    const status = document.getElementById('terminal-status');
+    
+    btn.disabled = true;
+    btn.textContent = 'Starting...';
+    status.textContent = 'Connecting...';
+    
+    try {
+        const response = await fetch(sandboxApiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                challenge_id: challengeId
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to create sandbox session');
+        }
+        
+        const data = await response.json();
+        sessionId = data.id;
+        isSandboxActive = true;
+        
+        terminal.write('\r\n\x1b[32m✓ Sandbox session started!\x1b[0m\r\n');
+        terminal.write('\x1b[33mType your commands below. Use "exit" to end the session.\x1b[0m\r\n\r\n');
+        
+        // Show prompt
+        terminal.write('$ ');
+        
+        btn.classList.add('hidden');
+        document.getElementById('submit-answer-btn').classList.remove('hidden');
+        status.textContent = 'Connected';
+        status.classList.remove('text-zinc-400');
+        status.classList.add('text-green-400');
+        
+    } catch (error) {
+        terminal.write(`\r\n\x1b[31m✗ Error: ${error.message}\x1b[0m\r\n`);
+        status.textContent = 'Connection failed';
+        btn.disabled = false;
+        btn.textContent = 'Start Terminal';
+    }
+}
+
+// Send command to sandbox
+async function sendCommand(command) {
+    if (!sessionId) return;
+    
+    try {
+        const response = await fetch(`${sandboxApiUrl}${sessionId}/execute/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                command: command
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.output) {
+            terminal.write(data.output);
+        }
+        if (data.error && data.exit_code !== 0) {
+            terminal.write(`\r\n\x1b[31m${data.error}\x1b[0m\r\n`);
+        }
+        
+        // Show prompt again
+        terminal.write('\r\n$ ');
+        
+    } catch (error) {
+        terminal.write(`\r\n\x1b[31mError executing command: ${error.message}\x1b[0m\r\n`);
+        terminal.write('$ ');
+    }
+}
+
+// Submit answer for evaluation
+async function submitAnswer() {
+    const btn = document.getElementById('submit-answer-btn');
+    const feedback = document.getElementById('result-feedback');
+    
+    if (!sessionId) {
+        alert('Please start a terminal session first');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.textContent = 'Evaluating...';
+    
+    try {
+        // Get terminal output (simplified - in real implementation, capture output)
+        const terminalOutput = terminal.buffer.active.getLine(terminal.buffer.active.cursorY)?.translateToString() || '';
+        
+        const response = await fetch(`${sandboxApiUrl}${sessionId}/evaluate/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                output: terminalOutput
+            })
+        });
+        
+        const data = await response.json();
+        
+        feedback.classList.remove('hidden');
+        
+        if (data.is_correct) {
+            feedback.className = 'mb-6 p-6 rounded-lg border border-green-500 bg-green-900/20';
+            feedback.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-400 text-2xl mr-3"></i>
+                    <div>
+                        <h4 class="text-green-400 font-bold text-lg">Correct! ✓</h4>
+                        <p class="text-zinc-300">${data.feedback}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Redirect to next challenge after 2 seconds
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000);
+            
+        } else {
+            feedback.className = 'mb-6 p-6 rounded-lg border border-red-500 bg-red-900/20';
+            feedback.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-times-circle text-red-400 text-2xl mr-3"></i>
+                    <div>
+                        <h4 class="text-red-400 font-bold text-lg">Incorrect ✗</h4>
+                        <p class="text-zinc-300">${data.feedback}</p>
+                        <p class="text-zinc-400 text-sm mt-2">Expected: <code>${data.expected_output}</code></p>
+                    </div>
+                </div>
+            `;
+        }
+        
+        btn.disabled = false;
+        btn.textContent = 'Submit Answer';
+        
+    } catch (error) {
+        alert(`Error: ${error.message}`);
+        btn.disabled = false;
+        btn.textContent = 'Submit Answer';
+    }
+}
+
+// Helper function to get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initTerminal();
+    
+    document.getElementById('start-sandbox-btn')?.addEventListener('click', startSandbox);
+    document.getElementById('submit-answer-btn')?.addEventListener('click', submitAnswer);
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (fitAddon) {
+            fitAddon.fit();
+        }
+    });
+});
+</script>
 {% endblock %}
