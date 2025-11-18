@@ -117,7 +117,7 @@ def learning_center(request, slug):
     solved_ids = UserChallengeAttempt.objects.filter(
         user=request.user, is_correct=True, challenge__module=active_module
     ).values_list("challenge_id", flat=True)
-    available_challenges = active_module.challenges.exclude(id__in=solved_ids)
+    available_challenges = active_module.challenges.exclude(id__in=solved_ids).order_by('order')
     
     # Get skill tag from module if available
     skill_tag = None

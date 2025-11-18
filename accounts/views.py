@@ -36,6 +36,10 @@ class RegisterView(View):
 
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
+    redirect_authenticated_user = True
+    
+    def get_success_url(self):
+        return '/accounts/dashboard/'
 
 class CustomLogoutView(LogoutView):
     next_page = "login"

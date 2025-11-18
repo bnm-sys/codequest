@@ -51,36 +51,60 @@ class OutputEvaluator:
         return similarity >= threshold
     
     @staticmethod
-    def evaluate_challenge(user_output, challenge):
+    def evaluate_challenge(user_output, challenge, command_executed=None):
         """
         Evaluate user output against challenge expectations
         
         Args:
             user_output: Output from Docker container
             challenge: Challenge instance with expected_output
+            command_executed: The command that was executed (optional)
             
         Returns:
             Tuple of (is_correct: bool, feedback: str)
         """
+        eval_type = getattr(challenge, 'evaluation_type', 'contains')
         expected = challenge.expected_output.strip()
         
-        # Try exact match first
-        if OutputEvaluator.exact_match(user_output, expected):
-            return True, "Perfect! Output matches exactly."
+        # Command-based evaluation
+        if eval_type == 'command':
+            if command_executed and challenge.command_to_practice:
+                # Check if the correct command was executed
+                user_cmd = command_executed.strip().lower()
+                expected_cmd = challenge.command_to_practice.strip().lower()
+                if expected_cmd in user_cmd or user_cmd.startswith(expected_cmd.split()[0]):
+                    return True, f"Perfect! You executed the correct command: {challenge.command_to_practice}"
+                else:
+                    return False, f"Try using: {challenge.command_to_practice}"
         
-        # Try contains match for partial credit
-        if OutputEvaluator.contains_match(user_output, expected):
-            return True, "Good! Output contains the expected result."
+        # File/directory exists evaluation
+        if eval_type == 'file_exists':
+            # Check if expected file/directory appears in output
+            expected_items = [item.strip() for item in expected.split() if item.strip()]
+            found_items = []
+            for item in expected_items:
+                if item.lower() in user_output.lower():
+                    found_items.append(item)
+            if found_items:
+                return True, f"Great! Found: {', '.join(found_items)}"
+            else:
+                return False, f"Look for: {expected}"
         
-        # Try similarity match (80% threshold)
-        if OutputEvaluator.similarity_match(user_output, expected, threshold=0.8):
-            return True, "Close! Output is very similar to expected."
+        # Exact match
+        if eval_type == 'exact':
+            if OutputEvaluator.exact_match(user_output, expected):
+                return True, "Perfect! Output matches exactly."
+            return False, f"Expected exact output: {expected[:100]}"
         
-        # Try regex if expected_output looks like a pattern
-        if expected.startswith('^') and expected.endswith('$'):
-            if OutputEvaluator.regex_match(user_output, expected):
-                return True, "Matches the expected pattern."
+        # Contains match (default)
+        if eval_type == 'contains' or not eval_type:
+            if OutputEvaluator.contains_match(user_output, expected):
+                return True, "Excellent! You found the expected result."
+            
+            # Try similarity match for partial credit
+            if OutputEvaluator.similarity_match(user_output, expected, threshold=0.7):
+                return True, "Close! You're on the right track."
         
         # No match found
-        return False, f"Output doesn't match expected result. Expected: {expected[:100]}"
+        return False, f"Keep trying! Look for: {expected[:80]}"
 

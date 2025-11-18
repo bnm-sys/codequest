@@ -46,10 +46,31 @@ class Module(models.Model):
 class Challenge(models.Model):
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="challenges")
     title = models.CharField(max_length=200, blank=True)
+    order = models.PositiveIntegerField(default=1)  # Order within module
     prompt = models.TextField()
     expected_output = models.TextField()
     difficulty = models.CharField(max_length=20, default="easy")
+    
+    # Pedagogical fields
+    theory_content = models.TextField(blank=True, help_text="Educational content explaining the concept")
+    visualization_script = models.TextField(blank=True, help_text="Commands to run for visualization/demo")
+    setup_commands = models.TextField(blank=True, help_text="Commands to set up the environment (one per line)")
+    command_to_practice = models.CharField(max_length=200, blank=True, help_text="The specific command learners should practice")
+    evaluation_type = models.CharField(
+        max_length=20,
+        choices=[
+            ('exact', 'Exact Output Match'),
+            ('contains', 'Output Contains'),
+            ('command', 'Command Executed'),
+            ('file_exists', 'File/Directory Exists'),
+        ],
+        default='contains'
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['order']
 
     def __str__(self):
         return (self.title or f"Challenge for {self.module.title}")[:80]

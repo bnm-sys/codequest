@@ -101,6 +101,10 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
+# Login/Logout URLs
+LOGIN_URL = '/accounts/login/'
+LOGIN_REDIRECT_URL = '/accounts/dashboard/'
+LOGOUT_REDIRECT_URL = '/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -139,6 +143,9 @@ REST_FRAMEWORK = {
 }
 
 # Docker Configuration
-DOCKER_BASE_URL = config('DOCKER_BASE_URL', default='unix://var/run/docker.sock')
+default_docker_socket = Path("/var/run/docker.sock")
+if not default_docker_socket.exists():
+    default_docker_socket = Path.home() / ".docker/run/docker.sock"
+DOCKER_BASE_URL = config('DOCKER_BASE_URL', default=f'unix://{default_docker_socket}')
 DOCKER_IMAGE = config('DOCKER_IMAGE', default='ubuntu:22.04')
 DOCKER_CONTAINER_TIMEOUT = config('DOCKER_CONTAINER_TIMEOUT', default=300, cast=int)  # 5 minutes

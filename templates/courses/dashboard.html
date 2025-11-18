@@ -3,111 +3,120 @@
 {% block title %}Dashboard | CodeQuest{% endblock %}
 
 {% block header %}
-<h1 class="text-4xl font-bold text-terminal mb-4">{{ user.username }}'s Dashboard</h1>
-<p class="text-zinc-300">Track your progress, XP, streaks, and achievements.</p>
+<div class="relative isolate overflow-hidden rounded-3xl border border-terminal/30 bg-gradient-to-r from-black via-zinc-900 to-black px-8 py-10 shadow-xl">
+    <div class="absolute inset-0 opacity-50" style="background: radial-gradient(circle at 15% 20%, rgba(0,255,204,.25), transparent 45%), radial-gradient(circle at 85% 0%, rgba(0,119,255,.2), transparent 55%);"></div>
+    <div class="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <p class="text-xs uppercase tracking-[0.4em] text-terminal/70">Pilot Console</p>
+            <h1 class="text-4xl font-bold text-terminal drop-shadow">{{ user.username }}'s Mission Deck</h1>
+            <p class="text-zinc-300">Track XP, streaks, and live course status.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="rounded-2xl border border-terminal/30 bg-zinc-950/60 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Total XP</p>
+                <p class="text-3xl font-bold text-terminal">{{ user.profile.xp }}</p>
+            </div>
+            <div class="rounded-2xl border border-terminal/30 bg-zinc-950/60 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Challenges</p>
+                <p class="text-3xl font-bold text-terminal">{{ user.profile.completed_challenges }}</p>
+            </div>
+            <div class="rounded-2xl border border-terminal/30 bg-zinc-950/60 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Streak</p>
+                <p class="text-3xl font-bold text-terminal">{{ user.profile.current_streak }} 🔥</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Main Content -->
-    <div class="lg:col-span-2">
-        <h2 class="text-2xl font-semibold text-terminal mb-4">Your Courses</h2>
-        
+<div class="grid gap-6 xl:grid-cols-3">
+    <section class="space-y-4 xl:col-span-2">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Active Missions</p>
+                <h2 class="text-2xl font-semibold text-terminal">Your Courses</h2>
+            </div>
+            <a href="{% url 'home' %}" class="rounded-lg border border-terminal/30 px-4 py-2 text-sm text-terminal hover:border-terminal">Discover More</a>
+        </div>
+
         {% for enrollment in enrollments %}
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6 mb-4">
-            <div class="flex justify-between items-start mb-4">
-                <div>
-                    <h3 class="text-xl font-bold text-terminal mb-2">{{ enrollment.course.title }}</h3>
-                    <p class="text-zinc-400 text-sm">{{ enrollment.course.description|truncatewords:20 }}</p>
+        <article class="rounded-2xl border border-terminal/20 bg-zinc-900/70 p-6 space-y-4 shadow-lg">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="space-y-2">
+                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">{{ enrollment.course.title|truncatewords:1 }} Track</p>
+                    <h3 class="text-xl font-bold text-terminal">{{ enrollment.course.title }}</h3>
+                    <p class="text-sm text-zinc-400 max-w-2xl">{{ enrollment.course.description|truncatewords:30 }}</p>
                 </div>
-                <a href="{% url 'courses:learning_center' slug=enrollment.course.slug %}" 
-                   class="bg-terminal text-terminal-dark px-4 py-2 rounded-lg font-bold hover:bg-terminal/80 transition">
-                    Continue Learning
+                <a href="{% url 'courses:learning_center' slug=enrollment.course.slug %}" class="rounded-xl bg-terminal px-5 py-2 font-semibold text-terminal-dark hover:bg-terminal/80">
+                    Resume Mission
                 </a>
             </div>
-            
-            <!-- Progress Bar -->
-            <div class="mb-4">
-                <div class="flex justify-between text-sm text-zinc-400 mb-2">
+
+            <div>
+                <div class="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-zinc-500">
                     <span>Progress</span>
                     <span>{{ enrollment.progress }}%</span>
                 </div>
-                <div class="w-full bg-zinc-700 rounded-full h-3">
-                    <div class="bg-terminal h-3 rounded-full transition-all" style="width: {{ enrollment.progress }}%"></div>
+                <div class="mt-2 h-3 w-full rounded-full bg-zinc-800">
+                    <div class="h-3 rounded-full bg-gradient-to-r from-terminal via-emerald-400 to-blue-400" style="width: {{ enrollment.progress }}%"></div>
                 </div>
             </div>
-            
-            <!-- Stats -->
-            <div class="grid grid-cols-3 gap-4 mt-4">
-                <div class="bg-zinc-900/50 rounded-lg p-3">
-                    <div class="text-xs text-zinc-400 mb-1">XP</div>
-                    <div class="text-xl font-bold text-terminal">{{ enrollment.xp }}</div>
+
+            <div class="grid gap-3 sm:grid-cols-3">
+                <div class="rounded-xl border border-terminal/20 bg-black/40 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">XP</p>
+                    <p class="text-2xl font-semibold text-terminal">{{ enrollment.xp }}</p>
                 </div>
-                <div class="bg-zinc-900/50 rounded-lg p-3">
-                    <div class="text-xs text-zinc-400 mb-1">Streak</div>
-                    <div class="text-xl font-bold text-terminal">{{ enrollment.streak }} 🔥</div>
+                <div class="rounded-xl border border-terminal/20 bg-black/40 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Streak</p>
+                    <p class="text-2xl font-semibold text-terminal">{{ enrollment.streak }} 🔥</p>
                 </div>
-                <div class="bg-zinc-900/50 rounded-lg p-3">
-                    <div class="text-xs text-zinc-400 mb-1">Time</div>
-                    <div class="text-xl font-bold text-terminal">{{ enrollment.total_minutes_spent }}m</div>
+                <div class="rounded-xl border border-terminal/20 bg-black/40 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Time</p>
+                    <p class="text-2xl font-semibold text-terminal">{{ enrollment.total_minutes_spent }}m</p>
                 </div>
             </div>
-        </div>
+        </article>
         {% empty %}
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-8 text-center">
-            <p class="text-zinc-400 mb-4">You are not enrolled in any course yet.</p>
-            <a href="{% url 'home' %}" class="bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition inline-block">
-                Browse Courses
-            </a>
+        <div class="rounded-2xl border border-terminal/30 bg-zinc-900/60 p-10 text-center">
+            <p class="text-zinc-400 mb-4">You haven't enlisted in any missions yet.</p>
+            <a href="{% url 'home' %}" class="rounded-lg bg-terminal px-5 py-2 font-semibold text-terminal-dark hover:bg-terminal/80">Browse Courses</a>
         </div>
         {% endfor %}
-    </div>
-    
-    <!-- Sidebar -->
-    <div class="space-y-6">
-        <!-- Quick Stats -->
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
-            <h3 class="text-xl font-semibold text-terminal mb-4">Quick Stats</h3>
-            <div class="space-y-3">
-                <div class="flex justify-between">
-                    <span class="text-zinc-400">Total XP</span>
-                    <span class="text-terminal font-bold">{{ user.profile.xp }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-zinc-400">Challenges Completed</span>
-                    <span class="text-terminal font-bold">{{ user.profile.completed_challenges }}</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-zinc-400">Current Streak</span>
-                    <span class="text-terminal font-bold">{{ user.profile.current_streak }} 🔥</span>
-                </div>
-            </div>
+    </section>
+
+    <aside class="space-y-6">
+        <div class="rounded-2xl border border-terminal/20 bg-black/60 p-6">
+            <h3 class="text-xl font-semibold text-terminal mb-4">Pilot Stats</h3>
+            <ul class="space-y-2 text-sm text-zinc-300">
+                <li class="flex justify-between border-b border-zinc-800 pb-2"><span>Total XP</span><span class="text-terminal font-semibold">{{ user.profile.xp }}</span></li>
+                <li class="flex justify-between border-b border-zinc-800 pb-2"><span>Challenges Complete</span><span class="text-terminal font-semibold">{{ user.profile.completed_challenges }}</span></li>
+                <li class="flex justify-between"><span>Current Streak</span><span class="text-terminal font-semibold">{{ user.profile.current_streak }} 🔥</span></li>
+            </ul>
         </div>
-        
-        <!-- Leaderboard Preview -->
+
         {% if leaderboards %}
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
-            <h3 class="text-xl font-semibold text-terminal mb-4">Top Performers</h3>
-            <div class="space-y-2">
-                {% for course_id, top_users in leaderboards.items %}
-                    {% if top_users %}
-                    <div class="text-sm">
-                        <div class="text-zinc-400 mb-2">Course Leaders</div>
-                        {% for enr in top_users|slice:":3" %}
-                        <div class="flex justify-between py-1">
-                            <span class="text-zinc-300">{{ enr.user.username }}</span>
-                            <span class="text-terminal">{{ enr.xp }} XP</span>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% endif %}
-                {% endfor %}
+        <div class="rounded-2xl border border-terminal/20 bg-black/60 p-6 space-y-3">
+            <div class="flex items-center justify-between">
+                <h3 class="text-xl font-semibold text-terminal">Live Leaderboard</h3>
+                <a href="{% url 'leaderboard' %}" class="text-xs uppercase tracking-[0.3em] text-terminal">View all</a>
             </div>
-            <a href="{% url 'leaderboard' %}" class="block mt-4 text-center text-terminal hover:text-terminal/80 transition text-sm">
-                View Full Leaderboard →
-            </a>
+            {% for course_id, top_users in leaderboards.items %}
+                {% if top_users %}
+                <div class="rounded-xl border border-terminal/10 bg-zinc-900/50 px-4 py-3">
+                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500 mb-2">Course Leaders</p>
+                    {% for enr in top_users|slice:":3" %}
+                    <div class="flex justify-between text-sm text-zinc-300 py-1">
+                        <span>{{ enr.user.username }}</span>
+                        <span class="text-terminal">{{ enr.xp }} XP</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            {% endfor %}
         </div>
         {% endif %}
-    </div>
+    </aside>
 </div>
 {% endblock %}

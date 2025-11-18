@@ -3,35 +3,71 @@
 {% block title %}Home | CodeQuest{% endblock %}
 
 {% block header %}
-<h1 class="text-4xl font-bold text-terminal mb-4">Welcome to CodeQuest</h1>
-<p class="text-zinc-300 text-lg">Learn Linux and Git in a fun, gamified way with adaptive learning.</p>
+<div class="relative isolate overflow-hidden rounded-3xl border border-terminal/30 bg-gradient-to-r from-zinc-900 via-black to-zinc-900 px-8 py-12 shadow-2xl">
+    <div class="absolute inset-0 opacity-60" style="background: radial-gradient(circle at 20% 20%, rgba(0,255,204,.25), transparent 45%), radial-gradient(circle at 80% 0%, rgba(0,102,255,.18), transparent 55%);"></div>
+    <div class="relative z-10 grid gap-8 lg:grid-cols-2">
+        <div class="space-y-4">
+            <p class="text-xs uppercase tracking-[0.4em] text-terminal/70">Gamified Command Missions</p>
+            <h1 class="text-4xl font-bold text-terminal drop-shadow">Welcome to CodeQuest</h1>
+            <p class="text-zinc-300 text-lg leading-relaxed">Run real Linux and Git commands inside an adaptive terminal. Every action is graded in real time, unlocking XP, streaks, and skill mastery.</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="#courses" class="rounded-xl bg-terminal px-6 py-3 font-semibold text-terminal-dark hover:bg-terminal/80 transition">Browse Missions</a>
+                <a href="{% url 'dashboard' %}" class="rounded-xl border border-terminal/40 px-6 py-3 text-terminal hover:border-terminal transition">Go to Dashboard</a>
+            </div>
+        </div>
+        <div class="grid gap-4 text-center sm:grid-cols-3">
+            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-6">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Courses Live</p>
+                <p class="text-3xl font-bold text-terminal">{{ courses|length }}</p>
+            </div>
+            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-6">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Sandbox Ready</p>
+                <p class="text-3xl font-bold text-terminal">Docker</p>
+            </div>
+            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-6">
+                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Auto-Grading</p>
+                <p class="text-3xl font-bold text-terminal">Instant</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="mt-8">
-    <h2 class="text-2xl font-semibold text-terminal mb-6">Available Courses</h2>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {% for course in courses %}
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6 hover:border-terminal transition">
-            <h3 class="text-xl font-bold text-terminal mb-3">{{ course.title }}</h3>
-            <p class="text-zinc-300 mb-4 line-clamp-3">{{ course.description|truncatewords:25 }}</p>
-            
-            <div class="flex items-center justify-between mt-4">
-                <div class="text-sm text-zinc-400">
-                    <i class="fas fa-users mr-1"></i>{{ course.total_enrolled }} enrolled
-                </div>
-                <a href="{% url 'courses:course_detail' slug=course.slug %}" 
-                   class="bg-terminal text-terminal-dark px-4 py-2 rounded-lg font-bold hover:bg-terminal/80 transition">
-                    View Course
-                </a>
-            </div>
+<section id="courses" class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Choose Your Mission</p>
+            <h2 class="text-2xl font-semibold text-terminal">Available Courses</h2>
         </div>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {% for course in courses %}
+        <article class="relative overflow-hidden rounded-2xl border border-terminal/20 bg-zinc-900/70 p-6 transition hover:border-terminal/60">
+            <div class="absolute inset-0 opacity-50" style="background: radial-gradient(circle at 10% -10%, rgba(0,255,204,.2), transparent 55%);"></div>
+            <div class="relative z-10 space-y-4">
+                <div class="flex items-center justify-between">
+                    <span class="rounded-full border border-terminal/30 px-3 py-1 text-xs uppercase tracking-[0.3em] text-terminal">{{ course.title|truncatewords:1 }}</span>
+                    <span class="text-sm text-zinc-400"><i class="fas fa-users mr-1"></i>{{ course.total_enrolled }} enrolled</span>
+                </div>
+                <h3 class="text-xl font-bold text-terminal">{{ course.title }}</h3>
+                <p class="text-sm text-zinc-300 line-clamp-4">{{ course.description|default:"Progressive Linux/Git missions" }}</p>
+                <div class="flex items-center justify-between pt-4">
+                    <div class="text-xs text-zinc-500 uppercase tracking-[0.3em]">
+                        Modules Ready<br><span class="text-terminal text-lg tracking-normal">{{ course.modules.count }}</span>
+                    </div>
+                    <a href="{% url 'courses:course_detail' slug=course.slug %}" class="rounded-lg bg-terminal/90 px-4 py-2 text-sm font-semibold text-terminal-dark hover:bg-terminal/70 transition">
+                        Enter Course
+                    </a>
+                </div>
+            </div>
+        </article>
         {% empty %}
-        <div class="col-span-full bg-zinc-800/70 border border-terminal/30 rounded-xl p-8 text-center">
-            <p class="text-zinc-400">No courses available at the moment.</p>
+        <div class="col-span-full rounded-2xl border border-terminal/30 bg-zinc-900/60 p-10 text-center">
+            <p class="text-zinc-400">New missions launching soon.</p>
         </div>
         {% endfor %}
     </div>
-</div>
+</section>
 {% endblock %}

@@ -12,7 +12,31 @@ from .serializers import (
     CommandExecuteSerializer,
     CommandResponseSerializer
 )
-from courses.models import Challenge
+from courses.models import Challenge, Enrollment, UserChallengeAttempt
+from accounts.models import Profile
+
+
+def _calculate_progress(enrollment):
+    """Recalculate completion percentage for an enrollment"""
+    modules = enrollment.course.modules.all()
+    total_modules = modules.count()
+    if total_modules == 0:
+        return 0
+
+    completed = 0
+    for module in modules:
+        total_challenges = module.challenges.count()
+        if total_challenges == 0:
+            continue
+        solved = UserChallengeAttempt.objects.filter(
+            user=enrollment.user,
+            challenge__module=module,
+            is_correct=True
+        ).values('challenge').distinct().count()
+        if solved >= total_challenges:
+            completed += 1
+
+    return int((completed / total_modules) * 100)
 from gamification.irt_engine import IRTEngine
 
 
@@ -77,10 +101,45 @@ class SandboxSessionViewSet(viewsets.ModelViewSet):
             )
         
         user_output = request.data.get('output', '')
+        command_ran = request.data.get('command', '').strip()
         challenge = session.challenge
+        response_payload = {
+            'is_correct': False,
+            'feedback': '',
+            'expected_output': challenge.expected_output,
+            'xp_awarded': 0,
+            'progress': None,
+            'streak': None,
+            'course_completed': False,
+        }
+        
+        enrollment = Enrollment.objects.filter(
+            user=request.user,
+            course=challenge.module.course
+        ).select_related('course').first()
+        if not enrollment:
+            return Response(
+                {'error': 'You must enroll in this course before attempting challenges.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         
         evaluator = OutputEvaluator()
-        is_correct, feedback = evaluator.evaluate_challenge(user_output, challenge)
+        is_correct, feedback = evaluator.evaluate_challenge(user_output, challenge, command_executed=command_ran)
+        response_payload['is_correct'] = is_correct
+        response_payload['feedback'] = feedback
+        
+        # Record attempt
+        prev_attempts = UserChallengeAttempt.objects.filter(
+            user=request.user,
+            challenge=challenge
+        ).count()
+        attempt = UserChallengeAttempt.objects.create(
+            user=request.user,
+            challenge=challenge,
+            is_correct=is_correct,
+            attempt_no=prev_attempts + 1,
+            time_seconds=int(request.data.get('time_seconds', 0) or 0),
+        )
         
         # Update IRT skill mastery
         if session.challenge.module.skill_tags:
@@ -98,11 +157,39 @@ class SandboxSessionViewSet(viewsets.ModelViewSet):
                         challenge_discrimination=1.0
                     )
         
-        return Response({
-            'is_correct': is_correct,
-            'feedback': feedback,
-            'expected_output': challenge.expected_output
-        })
+        if is_correct:
+            earned_xp = challenge.module.points
+            enrollment.xp = (enrollment.xp or 0) + earned_xp
+            enrollment.streak = (enrollment.streak or 0) + 1
+            enrollment.progress = _calculate_progress(enrollment)
+            enrollment.save()
+            
+            try:
+                profile = request.user.profile
+                profile.xp = (profile.xp or 0) + earned_xp
+                profile.current_streak = max(profile.current_streak or 0, enrollment.streak)
+                # Only increment completed challenge count if this is the first correct attempt
+                if not UserChallengeAttempt.objects.filter(
+                    user=request.user,
+                    challenge=challenge,
+                    is_correct=True
+                ).exclude(id=attempt.id).exists():
+                    profile.completed_challenges = (profile.completed_challenges or 0) + 1
+                profile.save()
+            except Profile.DoesNotExist:
+                pass
+            
+            response_payload['xp_awarded'] = earned_xp
+            response_payload['progress'] = enrollment.progress
+            response_payload['streak'] = enrollment.streak
+            response_payload['course_completed'] = enrollment.progress >= 100
+        else:
+            enrollment.streak = 0
+            enrollment.save(update_fields=['streak'])
+            response_payload['streak'] = 0
+            response_payload['progress'] = _calculate_progress(enrollment)
+        
+        return Response(response_payload)
     
     @action(detail=True, methods=['post'])
     def stop(self, request, pk=None):

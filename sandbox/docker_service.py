@@ -18,11 +18,26 @@ class DockerSandboxService:
     
     def __init__(self):
         try:
-            self.client = docker.from_env()
+            # Try to detect Docker socket location (macOS Docker Desktop)
+            import os
+            docker_base_url = settings.DOCKER_BASE_URL
+            # If default socket doesn't exist, try macOS Docker Desktop location
+            if docker_base_url == 'unix://var/run/docker.sock' and not os.path.exists('/var/run/docker.sock'):
+                docker_path = os.path.expanduser('~/.docker/run/docker.sock')
+                if os.path.exists(docker_path):
+                    docker_base_url = f'unix://{docker_path}'
+            
+            self.client = docker.DockerClient(base_url=docker_base_url)
+            # Test connection
+            self.client.ping()
             self.image = settings.DOCKER_IMAGE
             self.timeout = settings.DOCKER_CONTAINER_TIMEOUT
+            logger.info(f"Docker client connected successfully at {docker_base_url}")
         except docker.errors.DockerException as e:
             logger.error(f"Failed to connect to Docker: {e}")
+            self.client = None
+        except Exception as e:
+            logger.error(f"Error initializing Docker client: {e}")
             self.client = None
     
     def create_container(self, user, challenge=None):
@@ -42,9 +57,10 @@ class DockerSandboxService:
         
         try:
             # Create container with limited resources
+            # Use tail -f /dev/null to keep container running
             container = self.client.containers.create(
                 image=self.image,
-                command='/bin/bash',  # Keep container running
+                command=['tail', '-f', '/dev/null'],  # Keep container running
                 stdin_open=True,
                 tty=True,
                 detach=True,
@@ -56,7 +72,24 @@ class DockerSandboxService:
                 tmpfs={'/tmp': 'size=100m'}  # Temporary filesystem
             )
             
-            # Create session record
+            # Start container first
+            container.start()
+            
+            # Verify container is running
+            container.reload()
+            if container.status != 'running':
+                logger.error(f"Container {container.id} failed to start. Status: {container.status}")
+                try:
+                    container.remove()
+                except:
+                    pass
+                return None
+            
+            # Set up challenge environment if challenge provided
+            if challenge and challenge.setup_commands:
+                self._setup_challenge_environment(container, challenge)
+            
+            # Create session record after successful start
             expires_at = timezone.now() + timedelta(seconds=self.timeout)
             session = SandboxSession.objects.create(
                 user=user,
@@ -66,9 +99,7 @@ class DockerSandboxService:
                 is_active=True
             )
             
-            # Start container
-            container.start()
-            logger.info(f"Created container {container.id} for user {user.username}")
+            logger.info(f"Created and started container {container.id} for user {user.username}")
             
             return session
             
@@ -96,12 +127,27 @@ class DockerSandboxService:
         try:
             container = self.client.containers.get(container_id)
             
-            # Execute command with timeout
+            # Always execute via bash -c for proper shell features (pipes, redirections, etc.)
+            # If command already includes bash -c, extract it; otherwise wrap it
+            if command.startswith('/bin/bash -c'):
+                # Remove "/bin/bash -c" prefix and extract the actual command
+                cmd_part = command[len('/bin/bash -c'):].strip()
+                # Remove quotes if present
+                if cmd_part.startswith('"') and cmd_part.endswith('"'):
+                    cmd_part = cmd_part[1:-1]
+                elif cmd_part.startswith("'") and cmd_part.endswith("'"):
+                    cmd_part = cmd_part[1:-1]
+                # Execute via bash -c as a list
+                exec_command = ['/bin/bash', '-c', cmd_part]
+            else:
+                # Wrap command in bash -c for shell features
+                exec_command = ['/bin/bash', '-c', command]
+            
+            # Execute command
             exec_result = container.exec_run(
-                command,
+                exec_command,
                 stdout=True,
-                stderr=True,
-                timeout=30  # 30 second timeout per command
+                stderr=True
             )
             
             output = exec_result.output.decode('utf-8', errors='replace')
@@ -154,17 +200,37 @@ class DockerSandboxService:
         logger.info(f"Cleaned up {cleaned} expired sessions")
         return cleaned
     
+    def _setup_challenge_environment(self, container, challenge):
+        """Set up the container environment for a specific challenge"""
+        if not challenge.setup_commands:
+            return
+        
+        try:
+            # Execute each setup command
+            setup_commands = [cmd.strip() for cmd in challenge.setup_commands.split('\n') if cmd.strip()]
+            for cmd in setup_commands:
+                exec_result = container.exec_run(
+                    ['/bin/bash', '-c', cmd],
+                    stdout=True,
+                    stderr=True
+                )
+                if exec_result.exit_code != 0:
+                    logger.warning(f"Setup command failed: {cmd}")
+        except Exception as e:
+            logger.error(f"Error setting up challenge environment: {e}")
+    
     def get_or_create_session(self, user, challenge=None):
         """Get active session or create a new one"""
-        # Check for existing active session
-        active_session = SandboxSession.objects.filter(
-            user=user,
-            is_active=True,
-            expires_at__gt=timezone.now()
-        ).first()
-        
-        if active_session:
-            return active_session
+        # Check for existing active session for this specific challenge
+        if challenge:
+            active_session = SandboxSession.objects.filter(
+                user=user,
+                challenge=challenge,
+                is_active=True,
+                expires_at__gt=timezone.now()
+            ).first()
+            if active_session:
+                return active_session
         
         # Create new session
         return self.create_container(user, challenge)
