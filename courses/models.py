@@ -3,13 +3,6 @@ from django.db import models
 from django.conf import settings
 from django.utils.text import slugify
 from django.utils import timezone
-from django.contrib.postgres.fields import JSONField  # if using Postgres; fallback below
-
-# If you use sqlite in dev and don't have Postgres, use models.JSONField (Django 3.1+)
-try:
-    from django.contrib.postgres.fields import JSONField as PGJSONField
-except Exception:
-    PGJSONField = models.JSONField
 
 
 class Course(models.Model):
@@ -19,7 +12,6 @@ class Course(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # convenience admin reporting
     def __str__(self):
         return self.title
 
@@ -36,9 +28,12 @@ class Module(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="modules")
     title = models.CharField(max_length=150)
     order = models.PositiveIntegerField(default=1)
-    content = models.TextField(blank=True)        # markdown stored as text
+    content = models.TextField(blank=True)
     points = models.PositiveIntegerField(default=10)
-    skill_tags = PGJSONField(default=dict, blank=True)  # e.g. {"filesystem": 1}
+
+    # Correct JSONField
+    skill_tags = models.JSONField(default=dict, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -53,7 +48,7 @@ class Challenge(models.Model):
     title = models.CharField(max_length=200, blank=True)
     prompt = models.TextField()
     expected_output = models.TextField()
-    difficulty = models.CharField(max_length=20, default="easy")  # easy|medium|hard
+    difficulty = models.CharField(max_length=20, default="easy")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -73,13 +68,12 @@ class Enrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="enrollments")
     enrolled_at = models.DateTimeField(auto_now_add=True)
 
-    # Gamification & progress tracking
-    progress = models.PositiveIntegerField(default=0)   # percent
+    progress = models.PositiveIntegerField(default=0)
     streak = models.PositiveIntegerField(default=0)
     xp = models.PositiveIntegerField(default=0)
 
-    # per-skill mastery scores for adaptive algorithm
-    mastery = PGJSONField(default=dict, blank=True)  # e.g. {"filesystem": 45, "git": 10}
+    # Correct JSONField
+    mastery = models.JSONField(default=dict, blank=True)
 
     class Meta:
         unique_together = ("user", "course")
@@ -96,7 +90,6 @@ class Enrollment(models.Model):
 
     @property
     def total_minutes_spent(self):
-        # conservative default: sum up stored time_per_attempt on attempts
         total_seconds = UserChallengeAttempt.objects.filter(
             user=self.user, challenge__module__course=self.course
         ).aggregate(total=models.Sum("time_seconds"))["total"] or 0
@@ -110,7 +103,6 @@ class UserChallengeAttempt(models.Model):
     submitted_at = models.DateTimeField(auto_now_add=True)
     attempt_no = models.PositiveIntegerField(default=1)
 
-    # measured duration for this attempt (seconds). set in view when evaluating attempt.
     time_seconds = models.PositiveIntegerField(default=0)
 
     class Meta:
