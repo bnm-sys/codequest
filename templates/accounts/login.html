@@ -3,44 +3,140 @@
 {% block title %}Login | CodeQuest{% endblock %}
 
 {% block header %}
-<h1 class="text-4xl font-bold text-terminal mb-4">Login to CodeQuest</h1>
+<div class="text-center mb-8">
+    <h1 class="text-5xl font-bold text-terminal mb-4 tracking-wide">
+        <i class="fas fa-terminal mr-3"></i>Login to CodeQuest
+    </h1>
+    <p class="text-zinc-400 text-lg">Enter your credentials to continue your learning journey</p>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-md mx-auto bg-zinc-800/70 border border-terminal/30 rounded-xl p-8">
-    <form method="POST" class="space-y-6">
-        {% csrf_token %}
-        
-        <div>
-            <label for="username" class="block text-sm font-medium text-terminal mb-2">
-                Username
-            </label>
-            <input type="text" name="username" id="username" required
-                   class="w-full bg-zinc-900 border border-terminal/30 rounded-lg px-4 py-2 text-terminal focus:outline-none focus:border-terminal">
+<div class="max-w-lg mx-auto">
+    <!-- Main Login Card -->
+    <div class="bg-gradient-to-br from-zinc-800/90 via-zinc-800/80 to-zinc-900/90 border-2 border-terminal/40 rounded-2xl p-10 shadow-2xl backdrop-blur-sm">
+        <!-- Decorative Elements -->
+        <div class="flex justify-center mb-6">
+            <div class="h-1 w-20 bg-gradient-to-r from-transparent via-terminal to-transparent rounded-full"></div>
         </div>
         
-        <div>
-            <label for="password" class="block text-sm font-medium text-terminal mb-2">
-                Password
-            </label>
-            <input type="password" name="password" id="password" required
-                   class="w-full bg-zinc-900 border border-terminal/30 rounded-lg px-4 py-2 text-terminal focus:outline-none focus:border-terminal">
+        <form method="POST" class="space-y-6">
+            {% csrf_token %}
+            
+            <!-- Username Field -->
+            <div class="space-y-2">
+                <label for="username" class="block text-sm font-semibold text-terminal uppercase tracking-wide flex items-center gap-2">
+                    <i class="fas fa-user text-terminal/70"></i>
+                    Username
+                </label>
+                <div class="relative">
+                    <input type="text" name="username" id="username" required autocomplete="username"
+                           class="w-full bg-white border-2 border-terminal/40 rounded-lg px-4 py-3 text-black placeholder-zinc-500 focus:outline-none focus:border-terminal focus:ring-2 focus:ring-terminal/30 transition-all duration-200 shadow-inner"
+                           placeholder="Enter your username">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                        <i class="fas fa-check-circle text-terminal opacity-0 transition-opacity duration-200" id="username-check"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Password Field -->
+            <div class="space-y-2">
+                <label for="password" class="block text-sm font-semibold text-terminal uppercase tracking-wide flex items-center gap-2">
+                    <i class="fas fa-lock text-terminal/70"></i>
+                    Password
+                </label>
+                <div class="relative">
+                    <input type="password" name="password" id="password" required autocomplete="current-password"
+                           class="w-full bg-white border-2 border-terminal/40 rounded-lg px-4 py-3 text-black placeholder-zinc-500 focus:outline-none focus:border-terminal focus:ring-2 focus:ring-terminal/30 transition-all duration-200 shadow-inner"
+                           placeholder="Enter your password">
+                    <button type="button" onclick="togglePassword()" class="absolute inset-y-0 right-0 flex items-center pr-3 text-zinc-600 hover:text-black transition-colors">
+                        <i class="fas fa-eye" id="password-toggle"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Error Messages -->
+            {% if form.errors %}
+            <div class="bg-red-900/50 border-2 border-red-500 rounded-lg p-4 animate-pulse">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                    <p class="text-red-300 text-sm font-medium">{{ form.non_field_errors }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Submit Button -->
+            <button type="submit" 
+                    class="w-full bg-gradient-to-r from-terminal to-terminal/80 text-terminal-dark px-6 py-4 rounded-lg font-bold text-lg hover:from-terminal/90 hover:to-terminal/70 transition-all duration-200 shadow-lg hover:shadow-terminal/50 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Login</span>
+            </button>
+        </form>
+        
+        <!-- Divider -->
+        <div class="relative my-6">
+            <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-terminal/20"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-zinc-800/90 text-zinc-400">New to CodeQuest?</span>
+            </div>
         </div>
         
-        {% if form.errors %}
-        <div class="bg-red-900/50 border border-red-500 rounded-lg p-4">
-            <p class="text-red-400 text-sm">{{ form.non_field_errors }}</p>
+        <!-- Register Link -->
+        <div class="text-center">
+            <a href="{% url 'register' %}" 
+               class="inline-flex items-center gap-2 text-terminal hover:text-terminal/80 font-semibold transition-all duration-200 hover:gap-3">
+                <i class="fas fa-user-plus"></i>
+                <span>Create a new account</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
-        {% endif %}
-        
-        <button type="submit" class="w-full bg-terminal text-terminal-dark px-6 py-3 rounded-lg font-bold hover:bg-terminal/80 transition">
-            Login
-        </button>
-    </form>
+    </div>
     
-    <p class="mt-6 text-center text-zinc-400">
-        Don't have an account? 
-        <a href="{% url 'register' %}" class="text-terminal hover:text-terminal/80">Register here</a>
-    </p>
+    <!-- Feature Highlights -->
+    <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-zinc-800/50 border border-terminal/20 rounded-lg p-4 text-center">
+            <i class="fas fa-trophy text-terminal text-2xl mb-2"></i>
+            <p class="text-zinc-300 text-sm font-medium">Gamified Learning</p>
+        </div>
+        <div class="bg-zinc-800/50 border border-terminal/20 rounded-lg p-4 text-center">
+            <i class="fas fa-brain text-terminal text-2xl mb-2"></i>
+            <p class="text-zinc-300 text-sm font-medium">Adaptive Challenges</p>
+        </div>
+        <div class="bg-zinc-800/50 border border-terminal/20 rounded-lg p-4 text-center">
+            <i class="fas fa-code text-terminal text-2xl mb-2"></i>
+            <p class="text-zinc-300 text-sm font-medium">Real Terminal Practice</p>
+        </div>
+    </div>
 </div>
+
+<script>
+function togglePassword() {
+    const passwordInput = document.getElementById('password');
+    const passwordToggle = document.getElementById('password-toggle');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        passwordToggle.classList.remove('fa-eye');
+        passwordToggle.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        passwordToggle.classList.remove('fa-eye-slash');
+        passwordToggle.classList.add('fa-eye');
+    }
+}
+
+// Username validation feedback
+document.getElementById('username').addEventListener('input', function(e) {
+    const checkIcon = document.getElementById('username-check');
+    if (e.target.value.length > 0) {
+        checkIcon.classList.remove('opacity-0');
+        checkIcon.classList.add('opacity-100');
+    } else {
+        checkIcon.classList.add('opacity-0');
+        checkIcon.classList.remove('opacity-100');
+    }
+});
+</script>
 {% endblock %}
