@@ -3,100 +3,102 @@
 {% block title %}Leaderboard | CodeQuest{% endblock %}
 
 {% block header %}
-<h1 class="text-4xl font-bold text-terminal mb-4">Leaderboard</h1>
-<p class="text-zinc-300">Compete with other learners and climb the ranks!</p>
+<section class="relative isolate overflow-hidden rounded-[32px] border border-terminal/30 bg-gradient-to-r from-zinc-950 via-black to-zinc-950 px-10 py-12 shadow-[0_25px_80px_rgba(0,0,0,.65)]">
+    <div class="absolute inset-0 opacity-60" style="background: radial-gradient(circle at 15% 30%, rgba(0,255,204,.25), transparent 55%), radial-gradient(circle at 85% -5%, rgba(255,215,0,.2), transparent 60%);"></div>
+    <div class="relative z-10 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+            <p class="text-xs uppercase tracking-[0.55em] text-terminal/60">Command Rank</p>
+            <h1 class="text-4xl font-bold text-terminal drop-shadow">Leaderboard</h1>
+            <p class="text-zinc-300">Climb the XP tower and watch skill mastery in real time.</p>
+        </div>
+        <div class="rounded-2xl border border-terminal/30 bg-black/40 px-6 py-4 text-right">
+            <p class="text-xs uppercase tracking-[0.4em] text-terminal/60">Your Rank</p>
+            <p class="text-4xl font-bold text-terminal">#{{ user_rank }}</p>
+            <p class="text-xs uppercase tracking-[0.3em] text-zinc-500 mt-2">Total XP · <span class="text-terminal">{{ user_xp }}</span></p>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Main Leaderboard -->
-    <div class="lg:col-span-2">
-        <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-6">
-            <h2 class="text-2xl font-semibold text-terminal mb-6">Top Players (Total XP)</h2>
-            
-            <!-- User Rank -->
-            <div class="bg-terminal/20 border border-terminal rounded-lg p-4 mb-6">
-                <div class="flex justify-between items-center">
-                    <div>
-                        <div class="text-sm text-zinc-400">Your Rank</div>
-                        <div class="text-3xl font-bold text-terminal">#{{ user_rank }}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-sm text-zinc-400">Your XP</div>
-                        <div class="text-2xl font-bold text-terminal">{{ user_xp }}</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Leaderboard Table -->
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr class="border-b border-terminal/30">
-                            <th class="text-left py-3 px-4 text-terminal">Rank</th>
-                            <th class="text-left py-3 px-4 text-terminal">User</th>
-                            <th class="text-right py-3 px-4 text-terminal">Total XP</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user_data in leaderboard %}
-                        <tr class="border-b border-zinc-700/50 {% if user_data.id == user.id %}bg-terminal/10{% endif %}">
-                            <td class="py-3 px-4">
-                                {% if forloop.counter == 1 %}
-                                    <span class="text-yellow-400">🥇</span>
-                                {% elif forloop.counter == 2 %}
-                                    <span class="text-gray-300">🥈</span>
-                                {% elif forloop.counter == 3 %}
-                                    <span class="text-amber-600">🥉</span>
-                                {% else %}
-                                    <span class="text-zinc-400">#{{ forloop.counter }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-4 text-zinc-300">
-                                {% if user_data.id == user.id %}
-                                    <strong class="text-terminal">{{ user_data.username }} (You)</strong>
-                                {% else %}
-                                    {{ user_data.username }}
-                                {% endif %}
-                            </td>
-                            <td class="py-3 px-4 text-right text-terminal font-bold">
-                                {{ user_data.total_xp|default:0 }}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="3" class="py-8 text-center text-zinc-400">No rankings yet.</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+<div class="space-y-8">
+    <section class="rounded-[32px] border border-terminal/30 bg-black/70 p-8 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <div>
+                <p class="text-xs uppercase tracking-[0.45em] text-zinc-500">Hall of Fame</p>
+                <h2 class="text-3xl font-semibold text-terminal">Top Pilots</h2>
             </div>
         </div>
-    </div>
-    
-    <!-- Skill Leaderboards -->
-    <div>
-        <h2 class="text-2xl font-semibold text-terminal mb-4">Skill Masters</h2>
-        <div class="space-y-4">
+
+        <div class="overflow-hidden rounded-2xl border border-terminal/15 bg-black/40">
+            <table class="w-full text-sm">
+                <thead class="bg-black/40 text-terminal">
+                    <tr>
+                        <th class="py-4 px-4 text-left uppercase tracking-[0.3em] text-xs">Rank</th>
+                        <th class="py-4 px-4 text-left uppercase tracking-[0.3em] text-xs">Pilot</th>
+                        <th class="py-4 px-4 text-right uppercase tracking-[0.3em] text-xs">Total XP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user_data in leaderboard %}
+                    <tr class="border-t border-zinc-900/60 {% if user_data.id == user.id %}bg-terminal/10{% endif %}">
+                        <td class="py-4 px-4 text-zinc-400 font-semibold">
+                            {% if forloop.counter == 1 %}
+                                <span class="text-yellow-300">🥇</span>
+                            {% elif forloop.counter == 2 %}
+                                <span class="text-gray-200">🥈</span>
+                            {% elif forloop.counter == 3 %}
+                                <span class="text-amber-600">🥉</span>
+                            {% else %}
+                                #{{ forloop.counter }}
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-zinc-200">
+                            {% if user_data.id == user.id %}
+                                <strong class="text-terminal">{{ user_data.username }} (You)</strong>
+                            {% else %}
+                                {{ user_data.username }}
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-4 text-right text-terminal font-bold text-lg">
+                            {{ user_data.total_xp|default:0 }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="py-8 text-center text-zinc-400">No rankings yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <p class="text-xs uppercase tracking-[0.45em] text-zinc-500 mb-4">Skill Masters</p>
+        <div class="grid gap-5 md:grid-cols-2">
             {% for skill_tag, masters in skill_leaderboards.items %}
-            <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-4">
-                <h3 class="text-lg font-semibold text-terminal mb-3">{{ skill_tag }}</h3>
+            <article class="rounded-[28px] border border-terminal/25 bg-black/60 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-semibold text-terminal">{{ skill_tag }}</h3>
+                    <span class="text-xs uppercase tracking-[0.35em] text-terminal/70">Top 3</span>
+                </div>
                 <div class="space-y-2">
                     {% for mastery in masters %}
-                    <div class="flex justify-between text-sm">
-                        <span class="text-zinc-300">{{ mastery.user.username }}</span>
-                        <span class="text-terminal">{{ mastery.mastery_percentage }}%</span>
+                    <div class="flex justify-between rounded-xl border border-terminal/15 bg-black/30 px-4 py-3 text-sm text-zinc-300">
+                        <span>{{ mastery.user.username }}</span>
+                        <span class="text-terminal font-semibold">{{ mastery.mastery_percentage }}%</span>
                     </div>
                     {% endfor %}
                 </div>
-            </div>
+            </article>
             {% empty %}
-            <div class="bg-zinc-800/70 border border-terminal/30 rounded-xl p-4 text-center text-zinc-400">
+            <div class="rounded-[24px] border border-terminal/25 bg-black/50 p-8 text-center text-zinc-400">
                 No skill rankings yet.
             </div>
             {% endfor %}
         </div>
-    </div>
+    </section>
 </div>
 {% endblock %}
 

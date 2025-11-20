@@ -42,7 +42,21 @@ class CustomLoginView(LoginView):
         return '/accounts/dashboard/'
 
 class CustomLogoutView(LogoutView):
-    next_page = "login"
+    """
+    Allows GET logouts and flashes a timed confirmation before redirecting home.
+    """
+    next_page = "home"
+
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        messages.success(self.request, "Successfully logged out. See you on your next mission!")
+        return response
+
+    def get(self, request, *args, **kwargs):
+        """
+        Support GET requests coming from navbar links by delegating to POST logic.
+        """
+        return self.post(request, *args, **kwargs)
 
 class DashboardView(LoginRequiredMixin, View):
     template_name = "courses/dashboard.html"

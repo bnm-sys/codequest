@@ -3,77 +3,84 @@
 {% block title %}{{ course.title }} | CodeQuest{% endblock %}
 
 {% block header %}
-<div class="relative isolate overflow-hidden rounded-3xl border border-terminal/30 bg-gradient-to-br from-black via-zinc-900 to-black px-10 py-12 shadow-xl">
-    <div class="absolute inset-0 opacity-60" style="background: radial-gradient(circle at 20% 20%, rgba(0,255,204,.25), transparent 55%), radial-gradient(circle at 80% 0%, rgba(0,102,255,.18), transparent 60%);"></div>
-    <div class="relative z-10 space-y-6">
-        <div class="flex flex-wrap items-center justify-between gap-4">
+<section class="relative isolate overflow-hidden rounded-[36px] border border-terminal/30 bg-gradient-to-br from-zinc-950 via-black to-zinc-950 px-12 py-14 shadow-[0_30px_90px_rgba(0,0,0,.65)]">
+    <div class="absolute inset-0 opacity-60" style="background: radial-gradient(circle at 15% 25%, rgba(0,255,204,.3), transparent 55%), radial-gradient(circle at 85% -5%, rgba(0,102,255,.25), transparent 60%);"></div>
+    <div class="relative z-10 space-y-8">
+        <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
-                <p class="text-xs uppercase tracking-[0.4em] text-terminal/60">Course Brief</p>
-                <h1 class="text-4xl font-bold text-terminal drop-shadow">{{ course.title }}</h1>
+                <p class="text-xs uppercase tracking-[0.6em] text-terminal/60">Course Brief</p>
+                <h1 class="text-5xl font-bold text-terminal drop-shadow">{{ course.title }}</h1>
             </div>
             {% if not enrollment %}
-            <a href="{% url 'courses:enroll' slug=course.slug %}" class="rounded-xl bg-terminal px-6 py-3 font-semibold text-terminal-dark hover:bg-terminal/80"><i class="fas fa-user-plus mr-2"></i>Enroll Now</a>
+            <a href="{% url 'courses:enroll' slug=course.slug %}" class="inline-flex items-center gap-3 rounded-full bg-terminal px-8 py-3 text-terminal-dark font-bold tracking-wide hover:bg-terminal/80 transition">
+                <i class="fas fa-user-plus"></i>
+                Enroll Now
+            </a>
             {% else %}
-            <a href="{% url 'courses:learning_center' slug=course.slug %}" class="rounded-xl bg-terminal px-6 py-3 font-semibold text-terminal-dark hover:bg-terminal/80"><i class="fas fa-play mr-2"></i>Continue Mission</a>
+            <a href="{% url 'courses:learning_center' slug=course.slug %}" class="inline-flex items-center gap-3 rounded-full bg-terminal px-8 py-3 text-terminal-dark font-bold tracking-wide hover:bg-terminal/80 transition">
+                <i class="fas fa-play"></i>
+                Continue Mission
+            </a>
             {% endif %}
         </div>
         <p class="text-zinc-300 max-w-4xl leading-relaxed">{{ course.description }}</p>
-        <div class="grid gap-4 text-center sm:grid-cols-3">
-            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-5">
-                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Modules</p>
-                <p class="text-3xl font-bold text-terminal">{{ modules|length }}</p>
+        <div class="grid gap-6 text-center sm:grid-cols-3">
+            <div class="rounded-2xl border border-terminal/25 bg-black/40 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-terminal/60">Modules</p>
+                <p class="text-4xl font-bold text-terminal">{{ modules|length }}</p>
             </div>
-            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-5">
-                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Learners</p>
-                <p class="text-3xl font-bold text-terminal">{{ course.total_enrolled }}</p>
+            <div class="rounded-2xl border border-terminal/25 bg-black/40 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-terminal/60">Learners</p>
+                <p class="text-4xl font-bold text-terminal">{{ course.total_enrolled }}</p>
             </div>
             {% with first_module=modules|first %}
-            <div class="rounded-2xl border border-terminal/30 bg-black/50 px-4 py-5">
-                <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">XP / Module</p>
-                <p class="text-3xl font-bold text-terminal">{{ first_module.points|default:100 }}</p>
+            <div class="rounded-2xl border border-terminal/25 bg-black/40 px-5 py-4">
+                <p class="text-xs uppercase tracking-[0.4em] text-terminal/60">XP / Module</p>
+                <p class="text-4xl font-bold text-terminal">{{ first_module.points|default:100 }}</p>
             </div>
             {% endwith %}
         </div>
     </div>
-</div>
+</section>
 {% endblock %}
 
 {% block content %}
 <section class="space-y-6">
-    <div class="flex items-center justify-between">
-        <div>
-            <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Mission Stages</p>
-            <h2 class="text-2xl font-semibold text-terminal">Modules</h2>
-        </div>
+    <div>
+        <p class="text-xs uppercase tracking-[0.45em] text-zinc-500">Mission Stages</p>
+        <h2 class="text-3xl font-semibold text-terminal">Module Roadmap</h2>
     </div>
 
-    <div class="space-y-5">
+    <div class="space-y-6">
         {% for module in modules %}
-        <article class="rounded-2xl border border-terminal/20 bg-zinc-900/70 p-6 shadow-lg">
-            <div class="flex flex-wrap items-start justify-between gap-4 mb-4">
-                <div class="space-y-2">
-                    <p class="text-xs uppercase tracking-[0.3em] text-zinc-500">Stage {{ forloop.counter }} </p>
-                    <h3 class="text-xl font-bold text-terminal">{{ module.title }}</h3>
-                    <p class="text-sm text-zinc-300">{{ module.content|truncatewords:40 }}</p>
+        <article class="relative overflow-hidden rounded-[32px] border border-terminal/20 bg-gradient-to-r from-[#05080f] via-[#0b1222] to-[#05080f] p-8 shadow-2xl">
+            <div class="flex flex-col gap-6 lg:flex-row lg:justify-between lg:items-start">
+                <div class="space-y-3">
+                    <p class="text-xs uppercase tracking-[0.4em] text-zinc-500">Stage {{ forloop.counter }}</p>
+                    <h3 class="text-2xl font-bold text-terminal">{{ module.title }}</h3>
+                    <p class="text-sm text-zinc-300 max-w-3xl">{{ module.content|truncatewords:50 }}</p>
+                    <div class="flex flex-wrap gap-3 text-xs uppercase tracking-[0.3em]">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-terminal/30 px-4 py-1 text-terminal">{{ module.points }} XP</span>
+                        <span class="inline-flex items-center gap-2 rounded-full border border-blue-500/30 px-4 py-1 text-blue-200">{{ module.challenges.count }} Challenges</span>
+                    </div>
                 </div>
-                <div class="text-right space-y-2">
-                    <span class="inline-flex rounded-full border border-terminal/40 px-3 py-1 text-xs uppercase tracking-[0.3em] text-terminal">{{ module.points }} XP</span>
-                    <p class="text-xs text-zinc-500">{{ module.challenges.count }} Challenges</p>
+                {% if module.skill_tags %}
+                <div class="space-y-3 w-full max-w-md">
+                    <p class="text-xs uppercase tracking-[0.35em] text-zinc-500">Skill Stack</p>
+                    <div class="grid gap-3">
+                        {% for tag, weight in module.skill_tags.items %}
+                        <div class="rounded-2xl border border-terminal/15 bg-black/30 px-4 py-3 text-sm text-zinc-300 flex items-center justify-between">
+                            <span class="text-terminal font-semibold">{{ tag|title }}</span>
+                            <span class="text-xs text-terminal/70">Weight {{ weight }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
+                {% endif %}
             </div>
-            {% if module.skill_tags %}
-            <div class="grid gap-3 sm:grid-cols-2">
-                {% for tag, weight in module.skill_tags.items %}
-                <div class="rounded-xl border border-terminal/10 bg-black/40 px-4 py-3 text-sm text-zinc-300">
-                    <span class="text-terminal font-semibold">{{ tag|title }}</span>
-                    <p class="text-xs text-zinc-500">Focus multiplier {{ weight }}</p>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
         </article>
         {% empty %}
-        <div class="rounded-2xl border border-terminal/30 bg-zinc-900/60 p-10 text-center">
+        <div class="rounded-[24px] border border-terminal/30 bg-black/60 p-10 text-center">
             <p class="text-zinc-400">Modules coming soon.</p>
         </div>
         {% endfor %}

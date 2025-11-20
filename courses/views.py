@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views import View
 from django.utils import timezone
+import re
 
 from .models import Course, Module, Challenge, Enrollment, UserChallengeAttempt
 from django.db.models import Sum
@@ -84,6 +85,73 @@ def calculate_progress(enrollment):
     return int((completed / total) * 100)
 
 
+def build_mission_visualization(course, module, challenge):
+    """Create contextual visualization data for the pedagogy cards."""
+    if not module or not challenge:
+        return None
+
+    slug = (course.slug or "").lower()
+    title = (module.title or "").lower()
+
+    if "linux" in slug or "filesystem" in title:
+        directories = [
+            {"name": "/", "desc": "Root of everything in Linux", "highlight": True},
+            {"name": "/bin", "desc": "Essential binaries (ls, cp, mv)"},
+            {"name": "/etc", "desc": "System configuration files"},
+            {"name": "/home", "desc": "User home directories"},
+            {"name": "/var", "desc": "Changing logs & cache"},
+            {"name": "/usr", "desc": "User programs and libraries"},
+            {"name": "/root", "desc": "Administrator's home"},
+        ]
+
+        mentioned = set(re.findall(r"/[A-Za-z0-9._/-]+", (challenge.theory_content or "") + " " + (challenge.prompt or "")))
+        for row in directories:
+            if row["name"] in mentioned:
+                row["highlight"] = True
+
+        return {
+            "title": "Root Directory Stack",
+            "subtitle": "Visualize each layer inside / before you type.",
+            "items": directories,
+            "icon": "fa-folder-tree",
+        }
+
+    if "git" in slug or "git" in title:
+        steps = [
+            {"name": "git config", "desc": "Identify yourself", "highlight": "config" in (challenge.command_to_practice or "")},
+            {"name": "git init", "desc": "Create a repository"},
+            {"name": "git status", "desc": "Check working tree"},
+            {"name": "git add", "desc": "Stage files"},
+            {"name": "git commit", "desc": "Record history"},
+        ]
+
+        return {
+            "title": "Git Control Stack",
+            "subtitle": "Each lever prepares the next action.",
+            "items": steps,
+            "icon": "fa-diagram-project",
+        }
+
+    if module.skill_tags:
+        items = []
+        for skill, weight in module.skill_tags.items():
+            label = skill.replace("_", " ").title()
+            intensity = int(float(weight) * 100) if isinstance(weight, (int, float)) else 60
+            items.append({
+                "name": label,
+                "desc": f"Focus weight {intensity}%",
+            })
+        if items:
+            return {
+                "title": "Skill Stack",
+                "subtitle": "Key competencies guiding this mission.",
+                "items": items,
+                "icon": "fa-layer-group",
+            }
+
+    return None
+
+
 @login_required
 def learning_center(request, slug):
     """Return next active module + next challenge for the user."""
@@ -137,11 +205,14 @@ def learning_center(request, slug):
     if not next_challenge:
         next_challenge = available_challenges.first()
 
+    mission_visualization = build_mission_visualization(course, active_module, next_challenge)
+
     return render(request, "courses/learning_center.html", {
         "course": course,
         "active_module": active_module,
         "challenge": next_challenge,
         "enrollment": enrollment,
+        "mission_visualization": mission_visualization,
     })
 
 
