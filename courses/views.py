@@ -1,9 +1,9 @@
-# courses/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.views import View
 from django.utils import timezone
+from django.db.models import Prefetch
 
 from .models import Course, Module, Challenge, Enrollment, UserChallengeAttempt
 from django.db.models import Sum
@@ -45,10 +45,10 @@ def enroll_in_course(request, slug):
 @login_required
 def dashboard(request):
     """User-facing dashboard with enrollments, xp, streaks, and leaderboard snippets."""
+    # Optimized: select_related to avoid N+1
     enrollments = Enrollment.objects.filter(user=request.user).select_related("course")
-    # compute progress dynamically
-    for enr in enrollments:
-        enr.progress = calculate_progress(enr)
+    
+    # REMOVED: Dynamic calculate_progress loop. Rely on stored 'progress' field for read efficiency.
 
     # simple leaderboard example for each course (top 5)
     course_ids = [e.course_id for e in enrollments]
@@ -66,21 +66,28 @@ def dashboard(request):
 
 def calculate_progress(enrollment):
     """Calculate percent of modules fully solved."""
-    modules = enrollment.course.modules.all()
+    # Optimized: prefetch challenges to avoid N+1
+    modules = enrollment.course.modules.prefetch_related('challenges')
     total = modules.count()
     if total == 0:
         return 0
     completed = 0
+    
+    # Get all solved challenge IDs for this user and course in one query
+    solved_challenge_ids = set(UserChallengeAttempt.objects.filter(
+        user=enrollment.user, 
+        challenge__module__course=enrollment.course, 
+        is_correct=True
+    ).values_list("challenge_id", flat=True))
+
     for m in modules:
-        total_challenges = m.challenges.count()
-        if total_challenges == 0:
-            # treat empty modules as not counting towards completion
+        challenge_ids = [c.id for c in m.challenges.all()]
+        if not challenge_ids:
             continue
-        solved = UserChallengeAttempt.objects.filter(
-            user=enrollment.user, challenge__module=m, is_correct=True
-        ).values("challenge").distinct().count()
-        if solved >= total_challenges:
+        
+        if all(cid in solved_challenge_ids for cid in challenge_ids):
             completed += 1
+            
     return int((completed / total) * 100)
 
 
@@ -89,33 +96,43 @@ def learning_center(request, slug):
     """Return next active module + next challenge for the user."""
     course = get_object_or_404(Course, slug=slug)
     enrollment = get_object_or_404(Enrollment, user=request.user, course=course)
-    modules = course.modules.all().order_by("order")
+    
+    # Optimized: Prefetch modules and challenges
+    modules = course.modules.prefetch_related('challenges').order_by("order")
+    
     if not modules.exists():
         messages.warning(request, "This course has no modules yet.")
         return redirect("courses:dashboard")
 
-    # find first module with incomplete challenges
+    # Optimized: Fetch all solved challenges for this course once
+    solved_challenge_ids = set(UserChallengeAttempt.objects.filter(
+        user=request.user, 
+        challenge__module__course=course, 
+        is_correct=True
+    ).values_list("challenge_id", flat=True))
+
     active_module = None
+    next_challenge = None
+
     for m in modules:
-        total_challenges = m.challenges.count()
-        if total_challenges == 0:
+        challenges = m.challenges.all()
+        if not challenges:
             continue
-        solved_count = UserChallengeAttempt.objects.filter(
-            user=request.user, challenge__module=m, is_correct=True
-        ).values("challenge").distinct().count()
-        if solved_count < total_challenges:
+            
+        module_challenge_ids = [c.id for c in challenges]
+        is_complete = all(cid in solved_challenge_ids for cid in module_challenge_ids)
+        
+        if not is_complete:
             active_module = m
+            for c in challenges:
+                if c.id not in solved_challenge_ids:
+                    next_challenge = c
+                    break
             break
 
     if active_module is None:
         messages.success(request, "You have completed the course!")
         return redirect("courses:dashboard")
-
-    # choose next challenge in active_module
-    solved_ids = UserChallengeAttempt.objects.filter(
-        user=request.user, is_correct=True, challenge__module=active_module
-    ).values_list("challenge_id", flat=True)
-    next_challenge = active_module.challenges.exclude(id__in=solved_ids).first()
 
     return render(request, "courses/learning_center.html", {
         "course": course,
@@ -136,7 +153,6 @@ def attempt_challenge(request, challenge_id):
         return redirect("courses:learning_center", slug=course.slug)
 
     user_answer = request.POST.get("answer", "").strip()
-    # time posted by front-end in seconds (optional)
     try:
         time_seconds = int(request.POST.get("time_seconds", 0))
     except (ValueError, TypeError):
@@ -145,7 +161,7 @@ def attempt_challenge(request, challenge_id):
     is_correct = (user_answer == challenge.expected_output.strip())
 
     prev_attempts = UserChallengeAttempt.objects.filter(user=request.user, challenge=challenge).count()
-    attempt = UserChallengeAttempt.objects.create(
+    UserChallengeAttempt.objects.create(
         user=request.user,
         challenge=challenge,
         is_correct=is_correct,
@@ -153,14 +169,11 @@ def attempt_challenge(request, challenge_id):
         time_seconds=time_seconds,
     )
 
-    # XP and streak rules (simple baseline)
     if is_correct:
         earned_xp = challenge.module.points
         enrollment.xp = (enrollment.xp or 0) + earned_xp
         enrollment.streak = (enrollment.streak or 0) + 1
         messages.success(request, f"Correct — +{earned_xp} XP. Streak +1.")
-        # optionally update mastery per skill tag (placeholder)
-        # for tag, weight in challenge.module.skill_tags.items(): ...
     else:
         enrollment.streak = 0
         messages.error(request, "Incorrect — try again!")

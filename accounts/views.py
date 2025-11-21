@@ -8,6 +8,8 @@ from django.contrib import messages
 from django.contrib.auth.views import LoginView, LogoutView
 from courses.models import Course, Enrollment
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.mail import send_mail
+from django.conf import settings
 
 class RegisterView(View):
     template_name = "accounts/register.html"
@@ -29,6 +31,21 @@ class RegisterView(View):
             if email:
                 user.email = email.strip().lower()
             user.save()
+            
+            # Send welcome email
+            if user.email:
+                try:
+                    send_mail(
+                        subject="Welcome to CodeQuest!",
+                        message=f"Hi {user.username},\n\nWelcome to CodeQuest! We are excited to have you on board.\n\nBest,\nThe CodeQuest Team",
+                        from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@codequest.com',
+                        recipient_list=[user.email],
+                        fail_silently=True,
+                    )
+                except Exception as e:
+                    # Log error but don't stop registration
+                    print(f"Failed to send email: {e}")
+
             login(request, user)
             messages.success(request, "Welcome! Your account has been created.")
             return redirect("dashboard")
