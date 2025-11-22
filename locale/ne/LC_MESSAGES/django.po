@@ -28,6 +28,42 @@ msgstr "रेजिष्टर"
 msgid "Profile"
 msgstr "प्रोफाइल"
 
+msgid "View Profile"
+msgstr "प्रोफाइल हेर्नुहोस्"
+
+msgid "Your Profile"
+msgstr "तपाईंको प्रोफाइल"
+
+msgid "Role"
+msgstr "भूमिका"
+
+msgid "Language"
+msgstr "भाषा"
+
+msgid "Achievements"
+msgstr "उपलब्धिहरू"
+
+msgid "Total XP"
+msgstr "कुल XP"
+
+msgid "Max Streak"
+msgstr "अधिकतम निरन्तरता"
+
+msgid "Challenges Solved"
+msgstr "हल गरिएका चुनौतीहरू"
+
+msgid "Current Courses"
+msgstr "हालका कोर्सहरू"
+
+msgid "You haven't enrolled in any courses yet."
+msgstr "तपाईंले अहिलेसम्म कुनै कोर्समा नाम दर्ता गर्नुभएको छैन।"
+
+msgid "Explore Courses"
+msgstr "कोर्सहरू अन्वेषण गर्नुहोस्"
+
+msgid "Enroll Now"
+msgstr "अहिले नाम दर्ता गर्नुहोस्"
+
 # Auth
 msgid "Create a new account"
 msgstr "नयाँ खाता बनाउनुहोस्"

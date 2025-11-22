@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Profile" %} | CodeQuest{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <h1 style="margin-bottom: 1.5rem;">{% trans "Your Profile" %}</h1>
+
+    <!-- User Info Card -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+            <div class="profile-avatar" style="width: 80px; height: 80px; font-size: 2rem;">
+                {{ user.profile.display_name|default:user.username|slice:":1"|upper }}
+            </div>
+            <div style="flex: 1;">
+                <h2 style="margin: 0 0 0.5rem 0;">{{ user.profile.display_name|default:user.username }}</h2>
+                <p style="margin: 0; color: rgba(217,255,251,0.7);">
+                    <i class="fa-solid fa-envelope"></i> {{ user.email|default:"No email set" }}
+                </p>
+                <p style="margin: 0.25rem 0 0; color: rgba(217,255,251,0.7);">
+                    <i class="fa-solid fa-user-tag"></i> {% trans "Role" %}: {{ user.get_role_display }}
+                </p>
+                <p style="margin: 0.25rem 0 0; color: rgba(217,255,251,0.7);">
+                    <i class="fa-solid fa-language"></i> {% trans "Language" %}: {{ user.profile.get_preferred_language_display }}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Achievements Card -->
+    <div class="card" style="margin-bottom: 1.5rem;">
+        <h2 style="margin-top: 0;">{% trans "Achievements" %}</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+            <div style="text-align: center; padding: 1rem; background: rgba(0,255,204,0.08); border-radius: 10px;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--accent);">{{ total_xp }}</div>
+                <div style="color: rgba(217,255,251,0.8); margin-top: 0.25rem;">{% trans "Total XP" %}</div>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0,255,204,0.08); border-radius: 10px;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--accent);">{{ max_streak }}</div>
+                <div style="color: rgba(217,255,251,0.8); margin-top: 0.25rem;">{% trans "Max Streak" %}</div>
+            </div>
+            <div style="text-align: center; padding: 1rem; background: rgba(0,255,204,0.08); border-radius: 10px;">
+                <div style="font-size: 2.5rem; font-weight: bold; color: var(--accent);">{{ total_challenges }}</div>
+                <div style="color: rgba(217,255,251,0.8); margin-top: 0.25rem;">{% trans "Challenges Solved" %}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Current Courses Card -->
+    <div class="card">
+        <h2 style="margin-top: 0;">{% trans "Current Courses" %}</h2>
+        {% if enrollments %}
+            <div style="display: grid; gap: 1rem;">
+                {% for enrollment in enrollments %}
+                <div style="padding: 1rem; background: rgba(0,255,204,0.05); border: 1px solid rgba(0,255,204,0.25); border-radius: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 1rem; flex-wrap: wrap;">
+                        <div style="flex: 1;">
+                            <h3 style="margin: 0 0 0.5rem 0;">{{ enrollment.course.title }}</h3>
+                            <p style="margin: 0; color: rgba(217,255,251,0.7); font-size: 0.9rem;">{{ enrollment.course.description|truncatewords:20 }}</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 1.5rem; font-weight: bold; color: var(--accent);">{{ enrollment.xp|default:0 }} XP</div>
+                            <div style="color: rgba(217,255,251,0.7); font-size: 0.85rem; margin-top: 0.25rem;">
+                                <i class="fa-solid fa-fire"></i> {% trans "Streak" %}: {{ enrollment.streak|default:0 }}
+                            </div>
+                            <div style="color: rgba(217,255,251,0.7); font-size: 0.85rem; margin-top: 0.25rem;">
+                                <i class="fa-solid fa-chart-line"></i> {% trans "Progress" %}: {{ enrollment.progress|default:0 }}%
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <a href="{% url 'courses:learning_center' slug=enrollment.course.slug %}">
+                            <button class="cta" style="width: 100%;">{% trans "Continue Learning" %}</button>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p style="color: rgba(217,255,251,0.7);">{% trans "You haven't enrolled in any courses yet." %}</p>
+            <a href="{% url 'home' %}">
+                <button class="cta">{% trans "Explore Courses" %}</button>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

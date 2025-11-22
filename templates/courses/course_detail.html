@@ -6,7 +6,11 @@
 {% block header %}
 <h1>{{ course.title }}</h1>
 <p>{{ course.description }}</p>
-<a href="{% url 'enroll' %}"><button class="cta">{% trans "Enroll" %}</button></a>
+{% if enrollment %}
+    <a href="{% url 'courses:learning_center' slug=course.slug %}"><button class="cta">{% trans "Continue Learning" %}</button></a>
+{% else %}
+    <a href="{% url 'courses:enroll' slug=course.slug %}"><button class="cta">{% trans "Enroll Now" %}</button></a>
+{% endif %}
 {% endblock %}
 
 {% block content %}

@@ -48,8 +48,11 @@ class RegisterView(View):
             if user.email:
                 try:
                     send_mail(
-                        subject="Welcome to CodeQuest!",
-                        message=f"Hi {user.username},\n\nWelcome to CodeQuest! We are excited to have you on board.\n\nBest,\nThe CodeQuest Team",
+                        subject=_("Welcome to CodeQuest!"),
+                        message=_(
+                            "Hi %(user)s,\n\nWelcome to CodeQuest! We are excited to have you on board.\n\nBest,\nThe CodeQuest Team"
+                        )
+                        % {"user": user.username},
                         from_email=(
                             settings.DEFAULT_FROM_EMAIL
                             if hasattr(settings, "DEFAULT_FROM_EMAIL")
@@ -98,15 +101,19 @@ class EnrollView(LoginRequiredMixin, View):
     def post(self, request, slug):
         course = Course.objects.filter(slug=slug).first()
         if not course:
-            messages.error(request, "Course not found.")
+            messages.error(request, _("Course not found."))
             return redirect("dashboard")
         enrollment, created = Enrollment.objects.get_or_create(
             user=request.user, course=course
         )
         if created:
-            messages.success(request, f"Enrolled in {course.title}")
+            messages.success(
+                request, _("Enrolled in %(course)s") % {"course": course.title}
+            )
         else:
-            messages.info(request, f"Already enrolled in {course.title}")
+            messages.info(
+                request, _("Already enrolled in %(course)s") % {"course": course.title}
+            )
         return redirect("learning_center", slug=course.slug)
 
 
@@ -116,9 +123,42 @@ class LearningCenterView(LoginRequiredMixin, View):
     def get(self, request, slug):
         course = Course.objects.filter(slug=slug).first()
         if not course:
-            messages.error(request, "Course not found.")
+            messages.error(request, _("Course not found."))
             return redirect("dashboard")
         enrollment = Enrollment.objects.filter(user=request.user, course=course).first()
         return render(
             request, self.template_name, {"course": course, "enrollment": enrollment}
+        )
+
+
+class ProfileView(LoginRequiredMixin, View):
+    template_name = "accounts/profile.html"
+
+    def get(self, request):
+        # Get user's enrollments with course info and calculate total XP
+        enrollments = (
+            Enrollment.objects.filter(user=request.user)
+            .select_related("course")
+            .order_by("-xp")
+        )
+
+        total_xp = sum(e.xp or 0 for e in enrollments)
+        max_streak = max((e.streak or 0 for e in enrollments), default=0)
+
+        # Calculate total challenges completed
+        from courses.models import UserChallengeAttempt
+
+        total_challenges = UserChallengeAttempt.objects.filter(
+            user=request.user, is_correct=True
+        ).count()
+
+        return render(
+            request,
+            self.template_name,
+            {
+                "enrollments": enrollments,
+                "total_xp": total_xp,
+                "max_streak": max_streak,
+                "total_challenges": total_challenges,
+            },
         )

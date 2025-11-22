@@ -15,7 +15,7 @@
     <h3>{{ enrollment.course.title }}</h3>
     <p>{% trans "XP" %}: {{ enrollment.xp }} | {% trans "Progress" %}: {{ enrollment.progress }}% | {% trans "Streak" %}: {{ enrollment.streak }}</p>
     <p>{% trans "Total Minutes Spent" %}: {{ enrollment.total_minutes_spent }}</p>
-    <a href="{% url 'course_detail' slug=enrollment.course.slug %}"><button class="cta">{% trans "Continue Learning" %}</button></a>
+    <a href="{% url 'courses:course_detail' slug=enrollment.course.slug %}"><button class="cta">{% trans "Continue Learning" %}</button></a>
 </div>
 {% empty %}
 {% url 'home' as home_url %}

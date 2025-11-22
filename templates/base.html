@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700&family=Noto+Sans+Devanagari:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Base Styles -->
@@ -22,7 +22,7 @@
         }
 
         body {
-            font-family: 'Share Tech Mono', monospace;
+            font-family: 'Noto Sans', 'Noto Sans Devanagari', sans-serif;
             background: radial-gradient(circle at 20% 20%, rgba(0,255,204,0.12), transparent 35%),
                         radial-gradient(circle at 80% 0%, rgba(0,255,204,0.08), transparent 35%),
                         var(--bg);
@@ -31,6 +31,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            line-height: 1.6;
         }
 
         a {
@@ -43,40 +44,107 @@
             justify-content: space-between;
             align-items: center;
             padding: 1rem 2rem;
-            background: rgba(10, 12, 16, 0.85);
+            background: rgba(10, 12, 16, 0.95);
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--accent);
+            border-bottom: 1px solid rgba(0,255,204,0.4);
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
         nav a {
-            margin: 0 1rem;
-            font-weight: bold;
-            letter-spacing: 0.05em;
-            transition: color 0.2s ease, text-shadow 0.2s ease;
+            margin: 0 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
         }
 
         nav a:hover {
-            color: var(--accent-dim);
-            text-shadow: 0 0 12px var(--accent);
+            color: var(--accent);
+        }
+
+        .menu {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .logout-button {
+            background: none;
+            border: none;
+            color: var(--accent);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            cursor: pointer;
+            margin: 0 0.75rem;
+            padding: 0;
+            font-family: inherit;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+
+        .logout-button::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .logout-button:hover::after {
+            width: 100%;
+        }
+
+        .logout-button:hover {
+            color: var(--accent);
         }
 
         .nav-right {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 1rem;
         }
 
         .profile-pill {
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            padding: 0.4rem 0.75rem;
+            padding: 0.45rem 0.9rem;
             border: 1px solid rgba(0,255,204,0.35);
             border-radius: 999px;
-            background: rgba(15,17,22,0.7);
+            background: rgba(15,17,22,0.8);
+            transition: all 0.3s ease;
+        }
+
+        .profile-pill:hover {
+            border-color: rgba(0,255,204,0.6);
+            background: rgba(15,17,22,0.95);
+            transform: translateY(-1px);
         }
 
         .profile-avatar {
@@ -122,48 +190,59 @@
             background: linear-gradient(145deg, rgba(0,255,204,0.06), rgba(0,255,204,0.01));
             border: 1px solid rgba(0,255,204,0.35);
             padding: 1.5rem;
-            border-radius: 14px;
+            border-radius: 12px;
             position: relative;
-            overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
-            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+            overflow: visible;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            z-index: 1;
         }
 
-        .card::after {
+        .card::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at 20% 20%, rgba(0,255,204,0.12), transparent 30%);
+            background: radial-gradient(circle at 20% 20%, rgba(0,255,204,0.08), transparent 40%);
             opacity: 0;
             transition: opacity 0.3s ease;
             pointer-events: none;
+            border-radius: 12px;
         }
 
         .card:hover {
-            transform: translateY(-6px);
-            border-color: rgba(0,255,204,0.8);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.45);
+            transform: translateY(-4px);
+            border-color: rgba(0,255,204,0.6);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            z-index: 2;
         }
 
-        .card:hover::after {
+        .card:hover::before {
             opacity: 1;
         }
 
         button.cta {
             background: linear-gradient(90deg, var(--accent), var(--accent-dim));
-            color: #0f0f0f;
+            color: #0a0a0a;
             border: none;
-            padding: 0.65rem 1.25rem;
-            font-weight: bold;
+            padding: 0.7rem 1.4rem;
+            font-weight: 600;
             cursor: pointer;
             border-radius: 999px;
-            letter-spacing: 0.05em;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            letter-spacing: 0.02em;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(0,255,204,0.2);
         }
 
         button.cta:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0,255,204,0.35);
+            box-shadow: 0 6px 20px rgba(0,255,204,0.4);
+            background: linear-gradient(90deg, #00ffdd, #00ddaa);
+        }
+
+        button.cta:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(0,255,204,0.3);
         }
 
         .auth-wrapper {
@@ -177,22 +256,25 @@
             color: rgba(217,255,251,0.8);
         }
 
-        .input-card input {
+        .input-card input,
+        .input-card select {
             width: 100%;
             padding: 0.75rem 0.85rem;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid rgba(0,255,204,0.35);
             background: rgba(15,17,22,0.85);
             color: var(--text);
             font-size: 1rem;
+            font-family: inherit;
             box-sizing: border-box;
             outline: none;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .input-card input:focus {
-            border-color: rgba(0,255,204,0.75);
-            box-shadow: 0 0 0 3px rgba(0,255,204,0.18);
+        .input-card input:focus,
+        .input-card select:focus {
+            border-color: rgba(0,255,204,0.7);
+            box-shadow: 0 0 0 3px rgba(0,255,204,0.15);
         }
 
         .field-error {
@@ -232,15 +314,54 @@
             background: rgba(10, 12, 16, 0.85);
         }
 
+        select {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        select option {
+            background: var(--panel);
+            color: var(--text);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            line-height: 1.3;
+            font-weight: 600;
+        }
+
         @media (max-width: 768px) {
             nav {
                 padding: 1rem;
+                flex-direction: column;
+                gap: 0.75rem;
             }
+            
+            .logo {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
             nav a {
                 margin: 0 0.5rem;
             }
+            
+            .nav-right {
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
             header, main, footer {
-                padding: 1.25rem 1.5rem;
+                padding: 1.25rem 1rem;
+            }
+
+            .card {
+                margin-bottom: 1rem;
             }
         }
     </style>
@@ -258,7 +379,10 @@
         <div class="menu">
             {% if user.is_authenticated %}
                 <a href="{% url 'dashboard' %}">{% trans "Dashboard" %}</a>
-                <a href="{% url 'logout' %}">{% trans "Logout" %}</a>
+                <form method="post" action="{% url 'logout' %}" class="logout-form">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">{% trans "Logout" %}</button>
+                </form>
             {% else %}
                 <a href="{% url 'login' %}">{% trans "Login" %}</a>
                 <a href="{% url 'register' %}">{% trans "Register" %}</a>
@@ -267,20 +391,22 @@
 
         <div class="nav-right">
             {% if user.is_authenticated %}
-                <div class="profile-pill">
-                    <div class="profile-avatar">
-                        {{ user.profile.display_name|default:user.username|slice:":1"|upper }}
+                <a href="{% url 'profile' %}" style="text-decoration: none;">
+                    <div class="profile-pill">
+                        <div class="profile-avatar">
+                            {{ user.profile.display_name|default:user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="profile-meta">
+                            <span class="profile-name">{{ user.profile.display_name|default:user.username }}</span>
+                            <span class="profile-link">{% trans "View Profile" %}</span>
+                        </div>
                     </div>
-                    <div class="profile-meta">
-                        <span class="profile-name">{{ user.profile.display_name|default:user.username }}</span>
-                        <a class="profile-link" href="{% url 'dashboard' %}">{% trans "Profile" %}</a>
-                    </div>
-                </div>
+                </a>
             {% endif %}
             <form action="{% url 'set_language' %}" method="post" style="display:flex; align-items:center; gap:0.4rem;">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.path }}">
-                <select name="language" onchange="this.form.submit()" style="background:rgba(15,17,22,0.85); color:var(--text); border:1px solid var(--accent); border-radius:8px; padding:0.35rem 0.5rem;">
+                <select name="language" onchange="this.form.submit()" style="background:rgba(15,17,22,0.9); color:var(--text); border:1px solid rgba(0,255,204,0.4); border-radius:8px; padding:0.45rem 0.65rem; font-size:0.9rem; cursor:pointer; transition: border-color 0.3s ease;">
                     <option value="en" {% if CURRENT_LANG == 'en' %}selected{% endif %}>English</option>
                     <option value="ne" {% if CURRENT_LANG == 'ne' %}selected{% endif %}>नेपाली</option>
                 </select>
