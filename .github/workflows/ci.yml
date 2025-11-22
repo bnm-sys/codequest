@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+# Please read CONTRIBUTING.md for guidelines on:
+# - Code style and formatting
+# - Testing requirements
+# - PR submission process
+# - Code review standards
+
 jobs:
   lint:
     name: Code Quality
@@ -100,6 +106,18 @@ jobs:
     
     - name: Run tests
       run: pytest -v --tb=short
+    
+    - name: Check contribution guidelines
+      if: github.event_name == 'pull_request'
+      run: |
+        echo "✅ CI/CD checks passed!"
+        echo ""
+        echo "📋 Next Steps:"
+        echo "1. Ensure your PR description follows the template in CONTRIBUTING.md"
+        echo "2. Address any review comments promptly"
+        echo "3. Keep your branch updated with the base branch"
+        echo ""
+        echo "Thank you for contributing to CodeQuest! 🎉"
     
     - name: Upload coverage
       if: always()
