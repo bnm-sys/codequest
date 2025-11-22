@@ -26,6 +26,10 @@ class CustomUser(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    display_name = models.CharField(max_length=80, blank=True)
+    preferred_language = models.CharField(
+        max_length=5, choices=[("en", "English"), ("ne", "Nepali")], default="en"
+    )
     xp = models.PositiveIntegerField(default=0)
     completed_challenges = models.PositiveIntegerField(default=0)
     current_streak = models.PositiveIntegerField(default=0)
@@ -38,6 +42,6 @@ class Profile(models.Model):
 @receiver(post_save, sender=CustomUser)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
-        Profile.objects.create(user=instance)
+        Profile.objects.create(user=instance, display_name=instance.username)
     else:
         instance.profile.save()

@@ -7,6 +7,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.core.mail import send_mail
 from django.shortcuts import redirect, render
+from django.utils.translation import gettext as _
 from django.views import View
 
 from courses.models import Course, Enrollment
@@ -35,6 +36,14 @@ class RegisterView(View):
                 user.email = email.strip().lower()
             user.save()
 
+            display_name = form.cleaned_data.get("display_name") or user.username
+            preferred_language = form.cleaned_data.get("preferred_language") or "en"
+            # ensure profile exists then update preferences
+            profile = user.profile
+            profile.display_name = display_name
+            profile.preferred_language = preferred_language
+            profile.save()
+
             # Send welcome email
             if user.email:
                 try:
@@ -54,7 +63,10 @@ class RegisterView(View):
                     print(f"Failed to send email: {e}")
 
             login(request, user)
-            messages.success(request, "Welcome! Your account has been created.")
+            messages.success(
+                request,
+                _("Welcome! Your account has been created."),
+            )
             return redirect("dashboard")
         return render(request, self.template_name, {"form": form})
 

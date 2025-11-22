@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Register | CodeQuest{% endblock %}
+{% block title %}{% trans "Register" %} | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>Create a new account</h1>
+<h1>{% trans "Create a new account" %}</h1>
 {% endblock %}
 
 {% block content %}
 <form method="POST">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit" class="cta">Register</button>
+    <button type="submit" class="cta">{% trans "Register" %}</button>
 </form>
-<p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+<p>{% trans "Already have an account?" %} <a href="{% url 'login' %}">{% trans "Login" %}</a></p>
 {% endblock %}

@@ -18,10 +18,25 @@ class CustomUserCreationForm(UserCreationForm):
     phone_number = forms.CharField(
         required=False, widget=forms.TextInput(attrs={"placeholder": "+977XXXXXXXXX"})
     )
+    display_name = forms.CharField(required=False, max_length=80)
+    preferred_language = forms.ChoiceField(
+        choices=(("en", "English"), ("ne", "नेपाली / Nepali")),
+        initial="en",
+        required=False,
+        label="Language",
+    )
 
     class Meta:
         model = CustomUser
-        fields = ("username", "email", "phone_number", "password1", "password2")
+        fields = (
+            "username",
+            "display_name",
+            "preferred_language",
+            "email",
+            "phone_number",
+            "password1",
+            "password2",
+        )
 
     def clean(self):
         cleaned = super().clean()

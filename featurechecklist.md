@@ -7,8 +7,11 @@
 - [x] User registration with email/phone validation
 - [x] Login/logout functionality
 - [x] User profile with XP, streak tracking
+- [x] User profile with display name and language preference
 - [x] Phone number format validation (+977)
+- [x] User roles (student, instructor, admin)
 - [x] Admin user (username: `admin`, password: `admin123`)
+- [x] Demo users seeder command (demo-learner, demo-ai-coach)
 
 ### Database
 - [x] PostgreSQL backend (port 15432)
@@ -37,7 +40,8 @@
 - [x] pytest configuration
 - [x] Authentication tests (6 tests)
 - [x] Email functionality tests (3 tests)
-- [x] All tests passing (9/9)
+- [x] Profile and user role tests (7 tests)
+- [x] All tests passing (16/16)
 
 ### DevOps
 - [x] Virtual environment setup
@@ -60,5 +64,7 @@ source env/bin/activate
 
 ## 📝 Credentials
 - Admin: `admin` / `admin123`
+- Demo Learner: `demo-learner` / `****`
+- Demo AI Coach: `demo-ai-coach` / `****`
 - Database: `postgres` / `postgres`
 - Mailhog UI: http://localhost:8025
