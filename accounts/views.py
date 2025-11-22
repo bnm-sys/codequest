@@ -80,7 +80,7 @@ class CustomLogoutView(LogoutView):
 
 
 class DashboardView(LoginRequiredMixin, View):
-    template_name = "accounts/dashboard.html"
+    template_name = "courses/dashboard.html"
 
     def get(self, request):
         # Courses block - list all courses for selection
