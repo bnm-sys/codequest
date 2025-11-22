@@ -91,7 +91,7 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 # Database
 DB_NAME=codequest
 DB_USER=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=********
 DB_HOST=localhost
 DB_PORT=15432
 
@@ -102,8 +102,8 @@ EMAIL_PORT=1025
 
 ## Default Credentials 🔑
 
-- **Admin User**: `admin` / `admin123`
-- **Database**: `postgres` / `postgres`
+- **Admin User**: `admin` / `********`
+- **Database**: `postgres` / `*********`
 
 ## Testing 🧪
 
