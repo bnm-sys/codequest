@@ -19,7 +19,7 @@ class Command(BaseCommand):
             slug="practical-git",
             defaults={
                 "title": "Practical Git",
-                "description": "Master version control with Git. Learn branching, merging, rebasing, and collaborative workflows through hands-on terminal challenges.",
+                "description": "Learn Git version control. Understand how to save your work, create branches, merge code, and work with others. Practice using terminal commands.",
                 "is_active": True,
             },
         )
@@ -33,7 +33,7 @@ class Command(BaseCommand):
             slug="linux-foundation",
             defaults={
                 "title": "Linux Foundation",
-                "description": "Build a rock-solid foundation in Linux system administration. Navigate filesystems, manage processes, configure permissions, and automate tasks with shell scripting.",
+                "description": "Learn Linux basics. Understand how to use the terminal, manage files and folders, control permissions, work with processes, and write simple scripts.",
                 "is_active": True,
             },
         )

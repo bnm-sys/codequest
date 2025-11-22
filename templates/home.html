@@ -6,9 +6,9 @@
 {% block header %}
 <section style="display:flex; flex-wrap:wrap; gap:2rem; align-items:center; margin-bottom:2rem;">
     <div style="flex:1 1 320px; min-width:0;">
-        <p style="letter-spacing:0.15em; color:rgba(217,255,251,0.7); font-size:0.85rem; margin:0 0 0.5rem 0; text-transform:uppercase;">{% trans "NEXT-GEN TRAINING HUB" %}</p>
-        <h1 style="font-size:clamp(1.8rem, 5vw, 2.6rem); margin:0 0 0.8rem 0; line-height:1.2;">{% trans "Master Linux & Git like a space pilot." %}</h1>
-        <p style="margin:0 0 1.5rem 0; color:rgba(217,255,251,0.85); max-width:40ch; line-height:1.7;">{% trans "Interactive missions, terminal-grade drills, and a trajectory built for real-world engineering." %}</p>
+        <p style="letter-spacing:0.15em; color:rgba(217,255,251,0.7); font-size:0.85rem; margin:0 0 0.5rem 0; text-transform:uppercase;">{% trans "ONLINE LEARNING PLATFORM" %}</p>
+        <h1 style="font-size:clamp(1.8rem, 5vw, 2.6rem); margin:0 0 0.8rem 0; line-height:1.2;">{% trans "Learn Linux and Git" %}</h1>
+        <p style="margin:0 0 1.5rem 0; color:rgba(217,255,251,0.85); max-width:40ch; line-height:1.7;">{% trans "Practice with hands-on exercises. Use the terminal. Apply to real work." %}</p>
         <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center;">
             {% if user.is_authenticated %}
                 {% if active_enrollment %}
@@ -26,16 +26,16 @@
     </div>
     <div style="flex:1 1 300px; display:grid; gap:1rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); min-width:0;">
         <div class="card" style="min-height:100px; padding:1.2rem;">
-            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Live terminal labs" %}</p>
-            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Real OS sandboxes" %}</h3>
+            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Terminal Practice" %}</p>
+            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Practice Environment" %}</h3>
         </div>
         <div class="card" style="min-height:100px; padding:1.2rem;">
-            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Mission-based" %}</p>
-            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Progressive checkpoints" %}</h3>
+            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Step by Step" %}</p>
+            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Learn One by One" %}</h3>
         </div>
         <div class="card" style="grid-column:span 2; min-height:100px; padding:1.2rem;">
-            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Signal strength" %}</p>
-            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Community + leaderboard" %}</h3>
+            <p style="margin:0; font-size:0.8rem; color:rgba(217,255,251,0.75);">{% trans "Track Progress" %}</p>
+            <h3 style="margin:0.4rem 0 0; font-size:1.2rem; line-height:1.3;">{% trans "Community and Rankings" %}</h3>
         </div>
     </div>
 </section>
@@ -45,7 +45,7 @@
 <section id="courses" style="margin-top:3rem; scroll-margin-top:80px;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.5rem;">
         <h2 style="margin:0; font-size:clamp(1.5rem, 4vw, 2rem);">{% trans "Available Courses" %}</h2>
-        <span style="font-size:0.9rem; color:rgba(217,255,251,0.7); font-style:italic;">{% trans "Curated for velocity, tuned for reliability." %}</span>
+        <span style="font-size:0.9rem; color:rgba(217,255,251,0.7);">{% trans "Well designed courses" %}</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:1.5rem;">
         {% for course in courses %}
