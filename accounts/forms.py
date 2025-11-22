@@ -1,16 +1,23 @@
 # accounts/forms.py
-from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from .models import CustomUser
 import re
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 
-PHONE_REGEX = re.compile(r'^\+977\d{7,12}$')  # +977 followed by 7-12 digits (adjust if needed)
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+
+from .models import CustomUser
+
+PHONE_REGEX = re.compile(
+    r"^\+977\d{7,12}$"
+)  # +977 followed by 7-12 digits (adjust if needed)
+
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=False)
-    phone_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'placeholder': '+977XXXXXXXXX'}))
+    phone_number = forms.CharField(
+        required=False, widget=forms.TextInput(attrs={"placeholder": "+977XXXXXXXXX"})
+    )
 
     class Meta:
         model = CustomUser
@@ -22,7 +29,9 @@ class CustomUserCreationForm(UserCreationForm):
         phone = cleaned.get("phone_number", "").strip()
 
         if not email and not phone:
-            raise ValidationError("Provide at least a +977 phone number or a valid email address.")
+            raise ValidationError(
+                "Provide at least a +977 phone number or a valid email address."
+            )
 
         if phone:
             if not PHONE_REGEX.match(phone):

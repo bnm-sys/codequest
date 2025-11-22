@@ -1,6 +1,7 @@
 # courses/admin.py
 from django.contrib import admin
-from .models import Course, Module, Challenge, Enrollment, UserChallengeAttempt
+
+from .models import Challenge, Course, Enrollment, Module, UserChallengeAttempt
 
 
 class ChallengeInline(admin.TabularInline):
@@ -49,7 +50,14 @@ class EnrollmentAdmin(admin.ModelAdmin):
 
 @admin.register(UserChallengeAttempt)
 class UserChallengeAttemptAdmin(admin.ModelAdmin):
-    list_display = ("user", "challenge", "is_correct", "attempt_no", "time_seconds", "submitted_at")
+    list_display = (
+        "user",
+        "challenge",
+        "is_correct",
+        "attempt_no",
+        "time_seconds",
+        "submitted_at",
+    )
     list_filter = ("is_correct", "challenge__module")
     search_fields = ("user__email",)
     readonly_fields = ("submitted_at",)

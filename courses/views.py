@@ -1,12 +1,8 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.views import View
-from django.utils import timezone
-from django.db.models import Prefetch
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .models import Course, Module, Challenge, Enrollment, UserChallengeAttempt
-from django.db.models import Sum
+from .models import Challenge, Course, Enrollment, UserChallengeAttempt
 
 
 def home(request):
@@ -21,20 +17,28 @@ def course_detail(request, slug):
     modules = course.modules.all().order_by("order")
     user_enrollment = None
     if request.user.is_authenticated:
-        user_enrollment = Enrollment.objects.filter(user=request.user, course=course).first()
+        user_enrollment = Enrollment.objects.filter(
+            user=request.user, course=course
+        ).first()
 
-    return render(request, "courses/course_detail.html", {
-        "course": course,
-        "modules": modules,
-        "enrollment": user_enrollment,
-    })
+    return render(
+        request,
+        "courses/course_detail.html",
+        {
+            "course": course,
+            "modules": modules,
+            "enrollment": user_enrollment,
+        },
+    )
 
 
 @login_required
 def enroll_in_course(request, slug):
     """Create or get enrollment and redirect to dashboard."""
     course = get_object_or_404(Course, slug=slug)
-    enrollment, created = Enrollment.objects.get_or_create(user=request.user, course=course)
+    enrollment, created = Enrollment.objects.get_or_create(
+        user=request.user, course=course
+    )
     if created:
         messages.success(request, f"Enrolled in {course.title}.")
     else:
@@ -47,7 +51,7 @@ def dashboard(request):
     """User-facing dashboard with enrollments, xp, streaks, and leaderboard snippets."""
     # Optimized: select_related to avoid N+1
     enrollments = Enrollment.objects.filter(user=request.user).select_related("course")
-    
+
     # REMOVED: Dynamic calculate_progress loop. Rely on stored 'progress' field for read efficiency.
 
     # simple leaderboard example for each course (top 5)
@@ -58,36 +62,42 @@ def dashboard(request):
             top = Enrollment.objects.filter(course_id=cid).order_by("-xp")[:5]
             leaderboards[cid] = top
 
-    return render(request, "courses/dashboard.html", {
-        "enrollments": enrollments,
-        "leaderboards": leaderboards,
-    })
+    return render(
+        request,
+        "courses/dashboard.html",
+        {
+            "enrollments": enrollments,
+            "leaderboards": leaderboards,
+        },
+    )
 
 
 def calculate_progress(enrollment):
     """Calculate percent of modules fully solved."""
     # Optimized: prefetch challenges to avoid N+1
-    modules = enrollment.course.modules.prefetch_related('challenges')
+    modules = enrollment.course.modules.prefetch_related("challenges")
     total = modules.count()
     if total == 0:
         return 0
     completed = 0
-    
+
     # Get all solved challenge IDs for this user and course in one query
-    solved_challenge_ids = set(UserChallengeAttempt.objects.filter(
-        user=enrollment.user, 
-        challenge__module__course=enrollment.course, 
-        is_correct=True
-    ).values_list("challenge_id", flat=True))
+    solved_challenge_ids = set(
+        UserChallengeAttempt.objects.filter(
+            user=enrollment.user,
+            challenge__module__course=enrollment.course,
+            is_correct=True,
+        ).values_list("challenge_id", flat=True)
+    )
 
     for m in modules:
         challenge_ids = [c.id for c in m.challenges.all()]
         if not challenge_ids:
             continue
-        
+
         if all(cid in solved_challenge_ids for cid in challenge_ids):
             completed += 1
-            
+
     return int((completed / total) * 100)
 
 
@@ -96,20 +106,20 @@ def learning_center(request, slug):
     """Return next active module + next challenge for the user."""
     course = get_object_or_404(Course, slug=slug)
     enrollment = get_object_or_404(Enrollment, user=request.user, course=course)
-    
+
     # Optimized: Prefetch modules and challenges
-    modules = course.modules.prefetch_related('challenges').order_by("order")
-    
+    modules = course.modules.prefetch_related("challenges").order_by("order")
+
     if not modules.exists():
         messages.warning(request, "This course has no modules yet.")
         return redirect("courses:dashboard")
 
     # Optimized: Fetch all solved challenges for this course once
-    solved_challenge_ids = set(UserChallengeAttempt.objects.filter(
-        user=request.user, 
-        challenge__module__course=course, 
-        is_correct=True
-    ).values_list("challenge_id", flat=True))
+    solved_challenge_ids = set(
+        UserChallengeAttempt.objects.filter(
+            user=request.user, challenge__module__course=course, is_correct=True
+        ).values_list("challenge_id", flat=True)
+    )
 
     active_module = None
     next_challenge = None
@@ -118,10 +128,10 @@ def learning_center(request, slug):
         challenges = m.challenges.all()
         if not challenges:
             continue
-            
+
         module_challenge_ids = [c.id for c in challenges]
         is_complete = all(cid in solved_challenge_ids for cid in module_challenge_ids)
-        
+
         if not is_complete:
             active_module = m
             for c in challenges:
@@ -134,12 +144,16 @@ def learning_center(request, slug):
         messages.success(request, "You have completed the course!")
         return redirect("courses:dashboard")
 
-    return render(request, "courses/learning_center.html", {
-        "course": course,
-        "active_module": active_module,
-        "challenge": next_challenge,
-        "enrollment": enrollment,
-    })
+    return render(
+        request,
+        "courses/learning_center.html",
+        {
+            "course": course,
+            "active_module": active_module,
+            "challenge": next_challenge,
+            "enrollment": enrollment,
+        },
+    )
 
 
 @login_required
@@ -158,9 +172,11 @@ def attempt_challenge(request, challenge_id):
     except (ValueError, TypeError):
         time_seconds = 0
 
-    is_correct = (user_answer == challenge.expected_output.strip())
+    is_correct = user_answer == challenge.expected_output.strip()
 
-    prev_attempts = UserChallengeAttempt.objects.filter(user=request.user, challenge=challenge).count()
+    prev_attempts = UserChallengeAttempt.objects.filter(
+        user=request.user, challenge=challenge
+    ).count()
     UserChallengeAttempt.objects.create(
         user=request.user,
         challenge=challenge,

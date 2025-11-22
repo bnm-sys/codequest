@@ -1,0 +1,14 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    env,
+    venv,
+    migrations,
+    .pytest_cache,
+    *.pyc,
+    .env
+max-complexity = 10
+ignore = E501,W503
+per-file-ignores = 
+    __init__.py:F401

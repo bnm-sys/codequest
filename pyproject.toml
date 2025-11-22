@@ -1,0 +1,19 @@
+[tool.black]
+target-version = ['py312']
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | env
+  | venv
+  | migrations
+  | __pycache__
+  | \.pytest_cache
+)/
+'''
+
+[tool.isort]
+profile = "black"
+skip_glob = ["*/migrations/*", "env/*", "venv/*"]
+known_django = "django"
+sections = ["FUTURE", "STDLIB", "DJANGO", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]

@@ -5,3 +5,12 @@ python-decouple==3.8
 setuptools==80.9.0
 sqlparse==0.5.3
 wheel==0.45.1
+
+# Testing
+pytest==9.0.1
+pytest-django==4.11.1
+
+# Code Quality
+flake8==7.3.0
+black==25.11.0
+isort==7.0.0

@@ -1,8 +1,6 @@
 # courses/models.py
-from django.db import models
 from django.conf import settings
-from django.utils.text import slugify
-from django.utils import timezone
+from django.db import models
 
 
 class Course(models.Model):
@@ -44,7 +42,9 @@ class Module(models.Model):
 
 
 class Challenge(models.Model):
-    module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name="challenges")
+    module = models.ForeignKey(
+        Module, on_delete=models.CASCADE, related_name="challenges"
+    )
     title = models.CharField(max_length=200, blank=True)
     prompt = models.TextField()
     expected_output = models.TextField()
@@ -64,8 +64,12 @@ class Challenge(models.Model):
 
 
 class Enrollment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments")
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="enrollments")
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="enrollments"
+    )
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="enrollments"
+    )
     enrolled_at = models.DateTimeField(auto_now_add=True)
 
     progress = models.PositiveIntegerField(default=0)
@@ -90,9 +94,12 @@ class Enrollment(models.Model):
 
     @property
     def total_minutes_spent(self):
-        total_seconds = UserChallengeAttempt.objects.filter(
-            user=self.user, challenge__module__course=self.course
-        ).aggregate(total=models.Sum("time_seconds"))["total"] or 0
+        total_seconds = (
+            UserChallengeAttempt.objects.filter(
+                user=self.user, challenge__module__course=self.course
+            ).aggregate(total=models.Sum("time_seconds"))["total"]
+            or 0
+        )
         return int(total_seconds / 60)
 
 
