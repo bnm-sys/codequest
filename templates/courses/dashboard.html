@@ -1,22 +1,24 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Dashboard | CodeQuest{% endblock %}
+{% block title %}{% trans "Dashboard" %} | CodeQuest{% endblock %}
 
 {% block header %}
-<h1>{{ user.username }}'s Dashboard</h1>
-<p>Track your progress, XP, and streaks.</p>
+<h1>{% blocktrans with name=user.profile.display_name|default:user.username %}{{ name }}'s Dashboard{% endblocktrans %}</h1>
+<p>{% trans "Track your progress, XP, and streaks." %}</p>
 {% endblock %}
 
 {% block content %}
-<h2>Your Courses</h2>
+<h2>{% trans "Your Courses" %}</h2>
 {% for enrollment in enrollments %}
 <div class="card">
     <h3>{{ enrollment.course.title }}</h3>
-    <p>XP: {{ enrollment.xp }} | Progress: {{ enrollment.progress }}% | Streak: {{ enrollment.streak }}</p>
-    <p>Total Minutes Spent: {{ enrollment.total_minutes_spent }}</p>
-    <a href="{% url 'course_detail' slug=enrollment.course.slug %}"><button class="cta">Continue Learning</button></a>
+    <p>{% trans "XP" %}: {{ enrollment.xp }} | {% trans "Progress" %}: {{ enrollment.progress }}% | {% trans "Streak" %}: {{ enrollment.streak }}</p>
+    <p>{% trans "Total Minutes Spent" %}: {{ enrollment.total_minutes_spent }}</p>
+    <a href="{% url 'course_detail' slug=enrollment.course.slug %}"><button class="cta">{% trans "Continue Learning" %}</button></a>
 </div>
 {% empty %}
-<p>You are not enrolled in any course yet. Go <a href="{% url 'home' %}">home</a> to enroll.</p>
+{% url 'home' as home_url %}
+<p>{% blocktrans with url=home_url %}You are not enrolled in any course yet. Go <a href="{{ url }}">home</a> to enroll.{% endblocktrans %}</p>
 {% endfor %}
 {% endblock %}

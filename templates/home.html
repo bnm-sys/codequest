@@ -1,30 +1,31 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Home | CodeQuest{% endblock %}
+{% block title %}{% trans "Home" %} | CodeQuest{% endblock %}
 
 {% block header %}
 <section style="display:flex; flex-wrap:wrap; gap:1.5rem; align-items:center;">
     <div style="flex:1 1 320px;">
-        <p style="letter-spacing:0.25em; color:rgba(217,255,251,0.7); font-size:0.9rem; margin:0 0 0.35rem 0;">NEXT-GEN TRAINING HUB</p>
-        <h1 style="font-size:2.6rem; margin:0 0 0.6rem 0;">Master Linux & Git like a space pilot.</h1>
-        <p style="margin:0 0 1.2rem 0; color:rgba(217,255,251,0.8); max-width:36ch;">Interactive missions, terminal-grade drills, and a trajectory built for real-world engineering.</p>
+        <p style="letter-spacing:0.25em; color:rgba(217,255,251,0.7); font-size:0.9rem; margin:0 0 0.35rem 0;">{% trans "NEXT-GEN TRAINING HUB" %}</p>
+        <h1 style="font-size:2.6rem; margin:0 0 0.6rem 0;">{% trans "Master Linux & Git like a space pilot." %}</h1>
+        <p style="margin:0 0 1.2rem 0; color:rgba(217,255,251,0.8); max-width:36ch;">{% trans "Interactive missions, terminal-grade drills, and a trajectory built for real-world engineering." %}</p>
         <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
-            <a href="{% url 'register' %}"><button class="cta">Start the Quest</button></a>
-            <a href="#courses" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:bold;">Explore courses <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="{% url 'register' %}"><button class="cta">{% trans "Start the Quest" %}</button></a>
+            <a href="#courses" style="display:inline-flex; align-items:center; gap:0.4rem; font-weight:bold;">{% trans "Explore courses" %} <i class="fa-solid fa-arrow-right"></i></a>
         </div>
     </div>
     <div style="flex:1 1 280px; display:grid; gap:0.75rem; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));">
         <div class="card" style="min-height:110px;">
-            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">Live terminal labs</p>
-            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">Real OS sandboxes</h3>
+            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">{% trans "Live terminal labs" %}</p>
+            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">{% trans "Real OS sandboxes" %}</h3>
         </div>
         <div class="card" style="min-height:110px;">
-            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">Mission-based</p>
-            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">Progressive checkpoints</h3>
+            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">{% trans "Mission-based" %}</p>
+            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">{% trans "Progressive checkpoints" %}</h3>
         </div>
         <div class="card" style="grid-column:span 2; min-height:110px;">
-            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">Signal strength</p>
-            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">Community + leaderboard</h3>
+            <p style="margin:0; font-size:0.85rem; color:rgba(217,255,251,0.8);">{% trans "Signal strength" %}</p>
+            <h3 style="margin:0.3rem 0 0; font-size:1.4rem;">{% trans "Community + leaderboard" %}</h3>
         </div>
     </div>
 </section>
@@ -33,18 +34,18 @@
 {% block content %}
 <section id="courses" style="margin-top:2rem;">
     <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem;">
-        <h2 style="margin:0;">Available Courses</h2>
-        <span style="font-size:0.95rem; color:rgba(217,255,251,0.7);">Curated for velocity, tuned for reliability.</span>
+        <h2 style="margin:0;">{% trans "Available Courses" %}</h2>
+        <span style="font-size:0.95rem; color:rgba(217,255,251,0.7);">{% trans "Curated for velocity, tuned for reliability." %}</span>
     </div>
     <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1rem;">
         {% for course in courses %}
         <div class="card">
             <h3 style="margin-top:0;">{{ course.title }}</h3>
             <p style="color:rgba(217,255,251,0.75);">{{ course.description|truncatewords:25 }}</p>
-            <a href="{% url 'course_detail' slug=course.slug %}"><button class="cta">Launch Module</button></a>
+            <a href="{% url 'course_detail' slug=course.slug %}"><button class="cta">{% trans "Launch Module" %}</button></a>
         </div>
         {% empty %}
-        <p>No courses available at the moment.</p>
+        <p>{% trans "No courses available at the moment." %}</p>
         {% endfor %}
     </div>
 </section>

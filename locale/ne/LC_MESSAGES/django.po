@@ -1,0 +1,178 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: codequest\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-01 00:00+0000\n"
+"PO-Revision-Date: 2024-01-01 00:00+0000\n"
+"Language: ne\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# Base/navigation
+msgid "CodeQuest"
+msgstr "कोडक्वेस्ट"
+
+msgid "Dashboard"
+msgstr "ड्यासबोर्ड"
+
+msgid "Logout"
+msgstr "लगआउट"
+
+msgid "Login"
+msgstr "लगइन"
+
+msgid "Register"
+msgstr "रेजिष्टर"
+
+msgid "Profile"
+msgstr "प्रोफाइल"
+
+# Auth
+msgid "Create a new account"
+msgstr "नयाँ खाता बनाउनुहोस्"
+
+msgid "Already have an account?"
+msgstr "पहिल्यै खाता छ?"
+
+msgid "Welcome! Your account has been created."
+msgstr "स्वागत छ! तपाईंको खाता तयार भयो।"
+
+msgid "Login to CodeQuest"
+msgstr "कोडक्वेस्टमा लगइन गर्नुहोस्"
+
+msgid "Username"
+msgstr "प्रयोगकर्ता नाम"
+
+msgid "Password"
+msgstr "पासवर्ड"
+
+msgid "Don't have an account?"
+msgstr "खाता छैन?"
+
+msgid "Register here"
+msgstr "यहाँ रेजिष्टर गर्नुहोस्"
+
+# Home
+msgid "Home"
+msgstr "गृहपृष्ठ"
+
+msgid "NEXT-GEN TRAINING HUB"
+msgstr "नेक्स्ट-जेन प्रशिक्षण केन्द्र"
+
+msgid "Master Linux & Git like a space pilot."
+msgstr "स्पेस पाइलटजस्तै लिनक्स र गिटमा दक्ष बन्नुहोस्।"
+
+msgid "Interactive missions, terminal-grade drills, and a trajectory built for real-world engineering."
+msgstr "इन्टरेक्टिभ मिशन, टर्मिनल-ग्रेड अभ्यास, र वास्तविक इन्जिनियरिङका लागि बनाइएका चरणहरू।"
+
+msgid "Start the Quest"
+msgstr "यात्रा सुरु गर्नुहोस्"
+
+msgid "Explore courses"
+msgstr "कोर्सहरू हेर्नुहोस्"
+
+msgid "Live terminal labs"
+msgstr "लाइभ टर्मिनल ल्याब"
+
+msgid "Real OS sandboxes"
+msgstr "वास्तविक OS स्यान्डबक्स"
+
+msgid "Mission-based"
+msgstr "मिशन-आधारित"
+
+msgid "Progressive checkpoints"
+msgstr "क्रमिक चेकपोइन्ट"
+
+msgid "Signal strength"
+msgstr "सिग्नल बलियो"
+
+msgid "Community + leaderboard"
+msgstr "समुदाय र लिडरबोर्ड"
+
+msgid "Available Courses"
+msgstr "उपलब्ध कोर्सहरू"
+
+msgid "Curated for velocity, tuned for reliability."
+msgstr "द्रुतगतिका लागि छनोट, भरपर्दोपनका लागि समायोजित।"
+
+msgid "Launch Module"
+msgstr "मोड्युल सुरु गर्नुहोस्"
+
+msgid "No courses available at the moment."
+msgstr "अहिले कुनै कोर्स उपलब्ध छैन।"
+
+# Dashboard
+msgid "Track your progress, XP, and streaks."
+msgstr "तपाईंको प्रगति, XP, र निरन्तरताहरू ट्र्याक गर्नुहोस्।"
+
+msgid "Your Courses"
+msgstr "तपाईंका कोर्सहरू"
+
+msgid "XP"
+msgstr "XP"
+
+msgid "Progress"
+msgstr "प्रगति"
+
+msgid "Streak"
+msgstr "निरन्तरता"
+
+msgid "Total Minutes Spent"
+msgstr "कुल मिनेट खर्च"
+
+msgid "Continue Learning"
+msgstr "पढाइ जारी राख्नुहोस्"
+
+msgid "You are not enrolled in any course yet. Go <a href=\"{% url 'home' %}\">home</a> to enroll."
+msgstr "तपाईं कुनै कोर्समा नाम दर्ता गरिएको छैन। नाम दर्ता गर्न <a href=\"{% url 'home' %}\">गृहपृष्ठ</a> जानुहोस्।"
+
+# Course detail
+msgid "Enroll"
+msgstr "नाम दर्ता गर्नुहोस्"
+
+msgid "Modules"
+msgstr "मोड्युलहरू"
+
+msgid "Points"
+msgstr "अंक"
+
+msgid "No modules added yet."
+msgstr "अहिलेसम्म कुनै मोड्युल थपिएको छैन।"
+
+# Learning center
+msgid "Learning Center"
+msgstr "लर्निङ सेन्टर"
+
+msgid "Adaptive lessons, real-time feedback, challenge progression & sandbox access."
+msgstr "अनुकूल पाठ, रियल-टाइम प्रतिकृया, चुनौती प्रगति र स्यान्डबक्स पहुँच।"
+
+msgid "Module Overview"
+msgstr "मोड्युल अवलोकन"
+
+msgid "Your personalized modules will appear here based on your challenge performance."
+msgstr "तपाईंको चुनौती प्रदर्शनका आधारमा यहाँ व्यक्तिगत मोड्युलहरू देखिनेछन्।"
+
+msgid "SANDBOX TERMINAL"
+msgstr "स्यान्डबक्स टर्मिनल"
+
+msgid "Welcome to your practice environment..."
+msgstr "तपाईंको अभ्यास वातावरणमा स्वागत छ..."
+
+msgid "Your Progress"
+msgstr "तपाईंको प्रगति"
+
+msgid "days"
+msgstr "दिन"
+
+msgid "XP Earned"
+msgstr "आर्जित XP"
+
+msgid "Rank"
+msgstr "क्रम"
+
+msgid "Unranked"
+msgstr "क्रमविहीन"
+
+msgid "MORE MODULES UNLOCK AS YOU MASTER CHALLENGES ▬▬▶"
+msgstr "चुनौतीमा दक्ष भएपछि थप मोड्युलहरू खुल्छन् ▬▬▶"

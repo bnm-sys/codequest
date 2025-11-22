@@ -63,6 +63,49 @@
             text-shadow: 0 0 12px var(--accent);
         }
 
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .profile-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.4rem 0.75rem;
+            border: 1px solid rgba(0,255,204,0.35);
+            border-radius: 999px;
+            background: rgba(15,17,22,0.7);
+        }
+
+        .profile-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(0,255,204,0.18);
+            border: 1px solid rgba(0,255,204,0.45);
+            display: grid;
+            place-items: center;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .profile-meta {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .profile-name {
+            font-weight: 700;
+        }
+
+        .profile-link {
+            font-size: 0.85rem;
+            color: rgba(217,255,251,0.8);
+        }
+
         header, main, footer {
             max-width: 1200px;
             width: 100%;
@@ -222,7 +265,18 @@
             {% endif %}
         </div>
 
-        <div>
+        <div class="nav-right">
+            {% if user.is_authenticated %}
+                <div class="profile-pill">
+                    <div class="profile-avatar">
+                        {{ user.profile.display_name|default:user.username|slice:":1"|upper }}
+                    </div>
+                    <div class="profile-meta">
+                        <span class="profile-name">{{ user.profile.display_name|default:user.username }}</span>
+                        <a class="profile-link" href="{% url 'dashboard' %}">{% trans "Profile" %}</a>
+                    </div>
+                </div>
+            {% endif %}
             <form action="{% url 'set_language' %}" method="post" style="display:flex; align-items:center; gap:0.4rem;">
                 {% csrf_token %}
                 <input name="next" type="hidden" value="{{ request.path }}">

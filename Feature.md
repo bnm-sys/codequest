@@ -18,10 +18,10 @@ Track work in small steps. Each feature lists executable tasks and subtasks you 
 
 ## 3) Localization (English/Nepali)
 - [x] Turn on Django i18n with `LANGUAGES = ['en', 'ne']`
-- [ ] Add translation strings to templates and views (`gettext_lazy`)
-- [ ] Create translation files and initial `.po` entries for both languages
+- [x] Add translation strings to templates and views (`gettext_lazy`)
+- [x] Create translation files and initial `.po` entries for both languages
 - [ ] Verify fonts render Nepali; set fallback font stack in base template
-- [ ] Add language switcher UI and persist choice in session/profile
+- [x] Add language switcher UI and persist choice in session/profile
 
 ## 4) Course & Module Model
 - [ ] Define models: Track, Module, Lesson, Lab, QuizQuestion, QuizOption, TaskOutcome
